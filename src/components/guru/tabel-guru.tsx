@@ -6,8 +6,8 @@ import { toast } from 'sonner'
 import { Modal, Konfirmasi } from '@/components/ui/modal'
 import { Bidang, Kosong } from '@/components/ui/primitives'
 import { SANDI_AWAL } from '@/lib/constants'
-import { inisial, nipGuruBerikutnya, bandingkanNipGuru } from '@/lib/utils'
-import type { Guru } from '@/lib/types'
+import { inisial, nipGuruBerikutnya, bandingkanNipGuru, labelKelas } from '@/lib/utils'
+import type { Guru, Rombel } from '@/lib/types'
 
 type FormState = {
   nip: string
@@ -32,7 +32,7 @@ const KOSONG: FormState = {
   akunPassword: '',
 }
 
-export function TabelGuru({ awal }: { awal: Guru[] }) {
+export function TabelGuru({ awal, rombel }: { awal: Guru[]; rombel: Rombel[] }) {
   const [data, setData] = useState(awal)
   const [cari, setCari] = useState('')
   const [form, setForm] = useState<FormState | null>(null)
@@ -132,7 +132,7 @@ export function TabelGuru({ awal }: { awal: Guru[] }) {
               type="search"
               value={cari}
               onChange={(e) => setCari(e.target.value)}
-              placeholder="Cari nama, NIP, mapel..."
+              placeholder="Cari nama, NIP, kelas..."
               className="kolom pl-9 py-2 text-[13px]"
             />
           </div>
@@ -226,7 +226,7 @@ export function TabelGuru({ awal }: { awal: Guru[] }) {
                   <th scope="col" className="px-6 py-3 text-left font-semibold w-[56px]">No</th>
                   <th scope="col" className="px-4 py-3 text-left font-semibold w-[110px]">NIP</th>
                   <th scope="col" className="px-4 py-3 text-left font-semibold">Nama Guru</th>
-                  <th scope="col" className="px-4 py-3 text-left font-semibold w-[160px]">Mata Pelajaran</th>
+                  <th scope="col" className="px-4 py-3 text-left font-semibold w-[160px]">Kelas</th>
                   <th scope="col" className="px-4 py-3 text-left font-semibold w-[180px]">Kontak</th>
                   <th scope="col" className="px-6 py-3 text-right font-semibold w-[80px]">Aksi</th>
                 </tr>
@@ -327,13 +327,24 @@ export function TabelGuru({ awal }: { awal: Guru[] }) {
             <Bidang label="Nama Guru" wajib>
               <input className="kolom" value={form.nama} onChange={(e) => setForm({ ...form, nama: e.target.value })} />
             </Bidang>
-            <Bidang label="Mata Pelajaran">
-              <input
+            <Bidang label="Kelas" hint="Pilih kelas yang sudah terdaftar di menu Rombel.">
+              <select
                 className="kolom"
                 value={form.mapel}
                 onChange={(e) => setForm({ ...form, mapel: e.target.value })}
-                placeholder="mis. Kelas A / Mengasuh"
-              />
+              >
+                <option value="">-- Pilih Kelas --</option>
+                {rombel.map((r) => (
+                  <option key={r.kode} value={r.kode}>
+                    {labelKelas(r.kode, r.nama)}
+                  </option>
+                ))}
+                {/* Nilai lama yang tidak ada di daftar rombel tetap ditampilkan
+                    supaya data guru yang sudah tersimpan tidak hilang/berubah. */}
+                {form.mapel && !rombel.some((r) => r.kode === form.mapel) && (
+                  <option value={form.mapel}>{form.mapel}</option>
+                )}
+              </select>
             </Bidang>
             <Bidang label="No HP">
               <input className="kolom" value={form.nohp} inputMode="tel" onChange={(e) => setForm({ ...form, nohp: e.target.value })} />

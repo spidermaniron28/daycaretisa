@@ -82,6 +82,25 @@ async function clearRow(namaSheet: string, rowNumber: number): Promise<void> {
 
 const HURUF = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
 
+/**
+ * Paksa nilai kolom telepon agar disimpan sebagai TEKS di sheet.
+ *
+ * Dengan `USER_ENTERED`, Google Sheets mem-parse "0857..." jadi ANGKA lalu
+ * membuang 0 di depan (bukti: sel Guru!D2 tersimpan sebagai `number`
+ * 85776959559). Awali apostrof — Sheets memakainya sebagai penanda teks dan
+ * TIDAK menyimpannya, jadi yang terbaca kembali tetap "085776959559".
+ * Diuji nyata di `.freebuff/uji-telepon.ts`: apostrof & RAW sama-sama lolos,
+ * USER_ENTERED polos gagal (0 hilang).
+ */
+function teksTelepon(v: unknown): string {
+  const s = str(v)
+  if (s === '') return ''
+  if (s.startsWith("'")) return s
+  // Cukup dipaksa teks bila nilainya berpotensi diparse jadi angka
+  // (angka, spasi, +, tanda kurung, strip) — nilai berhuruf biarkan apa adanya.
+  return /^[\d\s+()-]+$/.test(s) ? `'${s}` : s
+}
+
 function hurufKolom(index0: number): string {
   let i = index0
   let hasil = ''
@@ -382,7 +401,7 @@ export async function updateKontakSiswa(
 ): Promise<void> {
   const rowNumber = await cariBaris(SHEET.SISWA, SISWA_COL.NIS, nis)
   if (!rowNumber) throw new Error('Data siswa tidak ditemukan.')
-  await updateRow(SHEET.SISWA, rowNumber, SISWA_COL.EMAIL_ORTU, [emailOrtu, noWa])
+  await updateRow(SHEET.SISWA, rowNumber, SISWA_COL.EMAIL_ORTU, [emailOrtu, teksTelepon(noWa)])
 }
 
 /* =============================== GURU ==================================== */
@@ -407,7 +426,7 @@ export async function guruByNip(nip: string): Promise<Guru | null> {
 }
 
 export async function tambahGuru(g: Omit<Guru, 'foto' | 'email'>): Promise<void> {
-  await appendRows(SHEET.GURU, [[g.nip, g.nama, g.mapel, g.nohp, '', '']])
+  await appendRows(SHEET.GURU, [[g.nip, g.nama, g.mapel, teksTelepon(g.nohp), '', '']])
 }
 
 export async function updateGuru(
@@ -416,7 +435,7 @@ export async function updateGuru(
 ): Promise<void> {
   const rowNumber = await cariBaris(SHEET.GURU, GURU_COL.NIP, nip)
   if (!rowNumber) throw new Error('Data guru tidak ditemukan.')
-  await updateRow(SHEET.GURU, rowNumber, GURU_COL.NIP, [g.nip, g.nama, g.mapel, g.nohp])
+  await updateRow(SHEET.GURU, rowNumber, GURU_COL.NIP, [g.nip, g.nama, g.mapel, teksTelepon(g.nohp)])
 }
 
 export async function hapusGuru(nip: string): Promise<void> {

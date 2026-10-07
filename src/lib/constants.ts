@@ -67,7 +67,7 @@ export const SISWA_HEADER = [
 ]
 
 /* ----------------------------- Guru -------------------------------------- */
-/* 0 NIP | 1 Nama | 2 Mapel | 3 No HP | 4 Foto | 5 Email (baru)            */
+/* 0 NIP | 1 Nama | 2 Kelas (dulu "Mapel") | 3 No HP | 4 Foto | 5 Email   */
 export const GURU_COL = {
   NIP: 0,
   NAMA: 1,
@@ -80,7 +80,7 @@ export const GURU_COL = {
 export const GURU_HEADER = [
   'NIP',
   'Nama Guru',
-  'Mata Pelajaran',
+  'Kelas',
   'No HP',
   'Foto',
   'Email',

@@ -13,7 +13,7 @@ const DAFTAR: Array<{ path: string; judul: string; sub: string }> = [
   // Admin
   { path: '/admin/laporan', judul: 'Rekap & Ekspor Laporan', sub: 'Ringkasan laporan harian anak per periode.' },
   { path: '/admin/siswa', judul: 'Kelola Data Siswa', sub: 'Tambah, ubah, dan hapus data anak daycare.' },
-  { path: '/admin/guru', judul: 'Kelola Data Guru', sub: 'Data pengajar dan mata pelajaran yang diampu.' },
+  { path: '/admin/guru', judul: 'Kelola Data Guru', sub: 'Data pengajar dan kelas yang diampu.' },
   { path: '/admin/rombel', judul: 'Kelola Rombel / Kelas', sub: 'Kelas yang muncul sebagai pilihan pada data siswa.' },
   { path: '/admin/akun', judul: 'Manajemen Akun Pengguna', sub: 'Akun portal untuk administrator, guru, dan orang tua.' },
   { path: '/admin/sistem', judul: 'Pengaturan Sistem', sub: 'Identitas sekolah, gambar, dan teks beranda tiap portal.' },
