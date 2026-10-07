@@ -14,6 +14,8 @@ import {
   Check,
   ExternalLink,
   Link2,
+  ChevronDown,
+  Info,
 } from 'lucide-react'
 import { toast } from 'sonner'
 import { cn } from '@/lib/utils'
@@ -43,6 +45,8 @@ export function KartuKoneksi({
   const [sibukHubung, setSibukHubung] = useState(false)
   /** Tautan izin cadangan bila browser memblokir popup. */
   const [tautanIzin, setTautanIzin] = useState('')
+  /** Blok alamat izin Google dilipat — hanya perlu sekali saat pemasangan. */
+  const [bukaAlamat, setBukaAlamat] = useState(false)
 
   async function periksaUlang() {
     setSibukPeriksa(true)
@@ -229,32 +233,6 @@ export function KartuKoneksi({
           >
             <ExternalLink className="w-3.5 h-3.5" />
             Buka layar izin Google
-          </a>
-        </div>
-      )}
-
-      {/* Alamat callback — pendaftaran SEKALI saja, ditampilkan selalu. */}
-      {redirectUri && (
-        <div className="mt-3 rounded-xl border border-gray-200 bg-gray-50 p-4 text-[12px] text-gray-600">
-          <p>
-            <b>Sekali saja, sebelum tombol di atas dipakai:</b> daftarkan alamat ini di{' '}
-            <b>Google Cloud → Clients → klik klien OAuth Anda → Authorized redirect URIs</b>. Tanpa
-            ini Google menolak dengan <i>redirect_uri_mismatch</i>.
-          </p>
-          <p className="mt-1.5 flex flex-wrap items-center gap-2">
-            <code className="px-1.5 py-0.5 rounded bg-white border border-gray-200 font-mono break-all">
-              {redirectUri}
-            </code>
-            <ButtonSalin teks={redirectUri} halus />
-          </p>
-          <a
-            href="https://console.cloud.google.com/auth/clients"
-            target="_blank"
-            rel="noreferrer"
-            className="mt-2 inline-flex items-center gap-1.5 font-medium text-gray-700 hover:text-gray-900"
-          >
-            <ExternalLink className="w-3.5 h-3.5" />
-            Buka halaman Clients
           </a>
         </div>
       )}
@@ -461,6 +439,59 @@ export function KartuKoneksi({
       <p className="text-[11px] text-gray-400 mt-3">
         Terakhir diperiksa: {new Date(status.diperiksaPada).toLocaleString('id-ID')}
       </p>
+
+      {/* ----------------------------------------------------------------------
+        * Alamat izin Google — SENGAJA diletakkan paling bawah dan terlipat.
+        *
+        * Alamatnya hanya perlu didaftarkan SEKALI saat pemasangan, jadi tidak
+        * perlu memakan ruang di antara tombol-tombol yang dipakai sehari-hari.
+        * Bila tombol Hubungkan Ulang ditolak `redirect_uri_mismatch`, buka lipatan
+        * ini untuk mengambil alamatnya.
+        * -------------------------------------------------------------------- */}
+      {redirectUri && (
+        <div className="mt-5 border-t border-gray-100 pt-3">
+          <button
+            type="button"
+            onClick={() => setBukaAlamat((buka) => !buka)}
+            aria-expanded={bukaAlamat}
+            className="flex w-full items-start gap-2 text-left text-[12px] text-gray-400 transition-colors hover:text-gray-700"
+          >
+            <Info className="w-3.5 h-3.5 shrink-0 mt-0.5" />
+            <span className="flex-1">
+              Alamat izin Google (didaftarkan sekali saja) — buka bila tombol Hubungkan Ulang
+              ditolak <i>redirect_uri_mismatch</i>
+            </span>
+            <ChevronDown
+              className={cn('w-4 h-4 shrink-0 transition-transform', bukaAlamat && 'rotate-180')}
+            />
+          </button>
+
+          {bukaAlamat && (
+            <div className="mt-3 rounded-xl border border-gray-200 bg-gray-50 p-4 text-[12px] text-gray-600">
+              <p>
+                Daftarkan alamat di bawah pada{' '}
+                <b>Google Cloud → Clients → klien OAuth Anda → Authorized redirect URIs</b>. Tanpa
+                ini Google menolak dengan <i>redirect_uri_mismatch</i>.
+              </p>
+              <p className="mt-1.5 flex flex-wrap items-center gap-2">
+                <code className="px-1.5 py-0.5 rounded bg-white border border-gray-200 font-mono break-all">
+                  {redirectUri}
+                </code>
+                <ButtonSalin teks={redirectUri} halus />
+              </p>
+              <a
+                href="https://console.cloud.google.com/auth/clients"
+                target="_blank"
+                rel="noreferrer"
+                className="mt-2 inline-flex items-center gap-1.5 font-medium text-gray-700 hover:text-gray-900"
+              >
+                <ExternalLink className="w-3.5 h-3.5" />
+                Buka halaman Clients
+              </a>
+            </div>
+          )}
+        </div>
+      )}
     </section>
   )
 }
