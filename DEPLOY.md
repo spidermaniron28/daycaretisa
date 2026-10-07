@@ -167,3 +167,29 @@ setiap 7 hari — ini kebijakan Google, bukan bug aplikasi. Karena itu:
   tombol itu **tidak dirender** (bug Google yang dilaporkan di issue tracker
   mereka). Jalan keluar: buka tampilan lama OAuth consent screen, lengkapi
   halaman Branding, atau buat proyek Google Cloud baru.
+
+---
+
+## 7. Pemeriksaan otomatis (CI)
+
+`.github/workflows/ci.yml` menjalankan **typecheck → lint → build** pada setiap
+`push` dan `pull request`. Rincian penting:
+
+- berjalan di **Node 22** (versi yang dipakai Vercel untuk proyek baru), memakai
+  `npm ci` sehingga versi dependensinya sama persis dengan yang diuji di komputer;
+- **tanpa Environment Variables** — sengaja. Build produksi sudah diverifikasi
+  sukses tanpa env (semua halaman mengambil data Google saat request), jadi kalau
+  CI gagal, itu memang pertanda masalah kode, bukan sekadar env kosong;
+- push baru ke branch yang sama otomatis membatalkan pemeriksaan yang masih
+  berjalan (`concurrency`), supaya hemat menit runner.
+
+Hasil run pertama (commit `3271da6`): **success**, 45 detik —
+`npm ci` 11s, typecheck 8s, lint 4s, build 15s.
+
+**Catatan:** CI ini melapor, tidak memblokir. Vercel tetap men-deploy sendiri
+begitu ada push ke `main`. Kalau ingin deploy benar-benar ditahan saat CI merah,
+aktifkan di GitHub → Settings → Branches → tambahkan aturan untuk `main` dan
+centang **Require status checks to pass** → pilih `Typecheck, lint, build`.
+
+Repo **publik** memakai menit Actions tanpa batas; setelah diubah menjadi privat,
+satu run ≈ 1 menit dari kuota gratis 2.000 menit/bulan.
