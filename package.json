@@ -1,0 +1,46 @@
+{
+  "name": "erapor-daycare",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint",
+    "typecheck": "tsc --noEmit",
+    "bootstrap": "tsx --env-file-if-exists=.env.local --conditions=react-server scripts/bootstrap.ts",
+    "oauth:drive": "tsx --env-file-if-exists=.env.local --conditions=react-server scripts/oauth-drive.ts",
+    "setup:sheet": "tsx --env-file-if-exists=.env.local --conditions=react-server scripts/setup-sheet.ts",
+    "migrate:password": "tsx --env-file-if-exists=.env.local --conditions=react-server scripts/migrate-password.ts",
+    "smoke": "tsx scripts/smoke.ts"
+  },
+  "dependencies": {
+    "exceljs": "^4.4.0",
+    "googleapis": "^160.0.0",
+    "jose": "^6.1.0",
+    "lucide-react": "^0.545.0",
+    "next": "^16.3.8",
+    "nodemailer": "^7.0.10",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0",
+    "server-only": "^0.0.1",
+    "sonner": "^2.0.7",
+    "zod": "^4.1.13"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4.1.14",
+    "@types/node": "^24.9.2",
+    "@types/nodemailer": "^7.0.4",
+    "@types/react": "^19.2.2",
+    "@types/react-dom": "^19.2.2",
+    "eslint": "^9.38.0",
+    "eslint-config-next": "^16.3.8",
+    "tailwindcss": "^4.1.14",
+    "tsx": "^4.20.6",
+    "typescript": "^5.9.3"
+  },
+  "allowScripts": {
+    "esbuild@0.28.2": true,
+    "unrs-resolver@1.12.2": true
+  }
+}

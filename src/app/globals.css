@@ -1,0 +1,218 @@
+@import 'tailwindcss';
+
+@theme {
+  --font-sans: 'Poppins', ui-sans-serif, system-ui, sans-serif;
+
+  --color-navy: #0c1524;
+  --color-navy-sidebar: #12233f;
+  --color-hijau: #0d2a1f;
+  --color-hijau-border: #184533;
+  --color-biru-kolom: #173661;
+  --color-kuning: #f6d026;
+  --color-lokal: #0b4291;
+  --color-lokal-gelap: #08306b;
+}
+
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+  body {
+    font-family: var(--font-sans);
+    color: #1f2937;
+  }
+  /* Hilangkan ikon panah bawaan browser agar tampilan seragam */
+  select {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+  }
+  input[type='date']::-webkit-calendar-picker-indicator,
+  input[type='time']::-webkit-calendar-picker-indicator {
+    opacity: 0.55;
+    cursor: pointer;
+  }
+}
+
+/* ===========================================================================
+ * Komponen.
+ *
+ * PENTING: ditulis dengan @utility, BUKAN @layer components. Di Tailwind v4,
+ * kelas yang hanya didefinisikan di @layer components tidak bisa dipakai lewat
+ * @apply — build akan gagal dengan "Cannot apply unknown utility class".
+ * =========================================================================== */
+
+@utility kartu {
+  @apply bg-white rounded-2xl shadow-[0_2px_15px_rgb(0_0_0/0.03)] border border-gray-100;
+}
+
+@utility kolom {
+  @apply w-full border border-gray-200 rounded-lg px-4 py-2.5 text-[14px] text-gray-700
+         outline-none bg-white transition-colors
+         focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20;
+}
+
+@utility kolom-label {
+  @apply block text-[13px] font-semibold text-gray-700 mb-2;
+}
+
+/* ------------------------------- Tombol ---------------------------------- */
+
+@utility tombol {
+  @apply inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-[13px]
+         font-medium transition-colors shadow-sm cursor-pointer
+         disabled:opacity-60 disabled:cursor-not-allowed disabled:shadow-none;
+}
+
+@utility tombol-biru {
+  @apply tombol bg-blue-700 text-white hover:bg-blue-800;
+}
+
+@utility tombol-hijau {
+  @apply tombol bg-green-600 text-white hover:bg-green-700;
+}
+
+@utility tombol-ungu {
+  @apply tombol bg-violet-600 text-white hover:bg-violet-700;
+}
+
+@utility tombol-amber {
+  @apply tombol bg-amber-500 text-white hover:bg-amber-600;
+}
+
+@utility tombol-garis {
+  @apply tombol bg-white text-gray-700 border border-gray-200 hover:bg-gray-50;
+}
+
+@utility tombol-bahaya {
+  @apply tombol bg-red-50 text-red-600 border border-red-100 hover:bg-red-100;
+}
+
+@utility tombol-hantu {
+  @apply tombol bg-transparent text-gray-500 hover:bg-gray-100;
+}
+
+/* ------------------------------- Lencana --------------------------------- */
+
+@utility lencana {
+  @apply inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[12px] font-semibold border;
+}
+
+@utility lencana-biru {
+  @apply lencana text-blue-700 bg-blue-50 border-blue-100;
+}
+
+@utility lencana-hijau {
+  @apply lencana text-green-700 bg-green-50 border-green-100;
+}
+
+/* --------------------------- Navigasi sidebar ---------------------------- */
+
+@utility nav-item {
+  @apply flex items-center gap-3 px-4 py-3 text-[13px] text-gray-400 rounded-xl
+         cursor-pointer transition-all duration-200 active:scale-95 select-none;
+}
+
+@utility nav-item-aktif {
+  @apply nav-item text-blue-400 font-medium bg-navy-sidebar shadow-sm;
+}
+
+/* Tabel */
+@utility baris-tabel {
+  @apply grid items-center gap-2 px-4 md:px-6 py-4 text-[13px] text-gray-600
+         border-b border-gray-50 transition-colors;
+}
+
+@utility kepala-tabel {
+  @apply flex items-center gap-2 px-4 md:px-6 py-3 text-[13px] font-semibold
+         text-gray-500 bg-gray-50 border-b border-gray-100;
+}
+
+@utility kartu-kosong {
+  @apply flex flex-col items-center justify-center py-16 text-center text-gray-400 text-[13px] gap-2;
+}
+
+/* ------------------------------ Utilitas --------------------------------- */
+
+@utility animasi-masuk {
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+@utility animasi-denyut {
+  animation: denyut 2s ease-in-out infinite;
+}
+
+@utility sembunyi-mobile {
+  display: none;
+
+  @media (width >= 48rem) {
+    display: block;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes denyut {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.45;
+  }
+}
+
+/* ===========================================================================
+ * Gaya cetak untuk rekap laporan → PDF lewat Ctrl+P / tombol Cetak.
+ * Hanya area tabel yang ikut tercetak; navigasi dan tombol disembunyikan.
+ * =========================================================================== */
+@media print {
+  @page {
+    size: A4 landscape;
+    margin: 12mm;
+  }
+
+  body {
+    background: white !important;
+  }
+
+  .cetak-sembunyi {
+    display: none !important;
+  }
+
+  .cetak-pecah {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  .area-cetak {
+    padding: 0 !important;
+  }
+
+  main {
+    overflow: visible !important;
+    height: auto !important;
+    padding: 0 !important;
+  }
+
+  table {
+    font-size: 10px;
+  }
+
+  thead {
+    display: table-header-group;
+  }
+
+  tr {
+    break-inside: avoid;
+  }
+}

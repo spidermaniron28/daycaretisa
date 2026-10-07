@@ -1,0 +1,34 @@
+node_modules/
+.next/
+out/
+build/
+.DS_Store
+*.pem
+
+# Environment
+.env
+.env.local
+.env*.local
+
+# Vercel
+.vercel
+
+# Logs & cache
+*.tsbuildinfo
+next-env.d.ts
+npm-debug.log*
+yarn-error.log*
+# Log server (berisi keluaran runtime, tidak perlu masuk repo)
+*.log
+*.log.err
+
+# Catatan kerja lokal (memuat sandi uji & data akun uji) — tetap ada di komputer,
+# tidak ikut ke GitHub.
+.freebuff/
+
+# Kode frontend Apps Script versi lama (sudah digantikan apps Next.js).
+Dashboard.txt
+JavaScript.txt
+Index.txt
+Kode.gs.txt
+Login.txt
