@@ -122,15 +122,35 @@ dihitung dari alamat yang sedang dipakai.
 
 ## 5. Urutan deploy yang disarankan
 
-1. Di komputer: `npm run build` → harus sukses (sudah diverifikasi exit 0).
-2. `git init` (sekali), lalu commit. Pastikan `.env.local` tidak ikut.
-3. Push ke GitHub (repo **private** lebih baik, walau tidak ada rahasia di dalamnya).
-4. Import repo di Vercel → isi Environment Variables (bagian 2) → Deploy.
-5. Buka `https://<domain>/login`, masuk sebagai admin.
-6. Buka **Sistem & Akses** → pastikan dua baris **TERHUBUNG**.
-7. Daftarkan redirect URI produksi (bagian 3), lalu klik **Hubungkan Ulang Drive**
+**Status 2026-10-07** — langkah 1–3 sudah selesai:
+
+- repo git lokal dibuat di folder ini, cabang `main`, commit awal `0ef4338`
+  dengan 94 berkas (`.env.local`, `.freebuff/`, log, dan kode Apps Script lama
+  tidak diikutsertakan);
+- remote: <https://github.com/spidermaniron28/daycaretisa> — push selesai,
+  `git status -sb` bersih (`main...origin/main`);
+- identitas commit diset **lokal repo ini saja**: `Saenz <spidermaniron28@users.noreply.github.com>`;
+- git di komputer ini menolak folder karena kepemilikan SID berbeda, jadi ditambahkan
+  pengecualian `git config --global --add safe.directory 'D:/1. SAENZ/2. APLIKASI SAENZ/Erapor Daycare'`
+  (hanya folder ini; bisa dibatalkan dengan `--unset`).
+
+**Sisa langkah:**
+
+1. Repo GitHub saat ini **PUBLIK** — ubah ke privat bila aplikasi tidak ingin
+   dilihat orang: repo → Settings → General → Danger Zone → Change visibility →
+   *Make private*.
+2. Import repo di Vercel → isi Environment Variables (bagian 2) → Deploy.
+   Alamat import: <https://vercel.com/import>.
+3. Catatan paket: Vercel **Hobby gratis** hanya untuk pemakaian pribadi /
+   non-komersial. Bila aplikasi ini dipakai untuk usaha daycare, ketentuannya
+   memerlukan paket **Pro**.
+4. Buka `https://<domain>/login`, masuk sebagai admin.
+5. Buka **Sistem & Akses** → pastikan dua baris **TERHUBUNG**.
+6. Daftarkan redirect URI produksi (bagian 3), lalu klik **Hubungkan Ulang Drive**
    → setujui di Google (Advanced → Continue) → **Periksa Ulang** → **Uji Unggah Foto**.
-8. Coba unggah satu foto profil dan satu laporan dengan foto dari HP guru.
+7. Coba unggah satu foto profil dan satu laporan dengan foto dari HP guru.
+8. Setelah import selesai, setiap `git push` ke `main` otomatis memicu deploy
+   produksi, dan setiap branch/PR mendapat Preview Deployment sendiri.
 
 ---
 
