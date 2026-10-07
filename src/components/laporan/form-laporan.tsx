@@ -468,7 +468,6 @@ export function FormLaporan({ siswa, nipGuru, awal, kirimEmailDefault }: Props) 
           type="file"
           accept="image/*"
           multiple
-          capture="environment"
           className="hidden"
           onChange={pilihFoto}
         />
