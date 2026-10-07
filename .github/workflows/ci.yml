@@ -1,0 +1,50 @@
+name: CI
+
+# Dijalankan untuk setiap push dan pull request supaya kesalahan tipe, aturan
+# lint, atau build yang rusak ketahuan di GitHub — bukan baru terlihat saat
+# Vercel menolak deploy.
+on:
+  push:
+  pull_request:
+
+# Push baru ke branch yang sama membatalkan pemeriksaan yang masih berjalan,
+# supaya tidak menumpuk dan tidak menghabiskan menit runner.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  periksa:
+    name: Typecheck, lint, build
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Ambil kode
+        uses: actions/checkout@v4
+
+      # Node 22 = versi yang dipakai Vercel untuk proyek baru, jadi hasil di sini
+      # menggambarkan lingkungan produksi (bukan Node lokal di komputer dev).
+      - name: Siapkan Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      # `npm ci` (bukan install) memakai package-lock.json apa adanya sehingga
+      # versi dependensi di CI sama persis dengan yang diuji di komputer.
+      - name: Pasang dependensi
+        run: npm ci
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Lint
+        run: npm run lint -- src
+
+      # Tanpa Environment Variables: build produksi harus tetap berhasil, karena
+      # semua halaman mengambil data Google saat request (bukan saat build).
+      # Kalau langkah ini gagal padahal di komputer lolos, berarti ada data yang
+      # terlanjur dibaca saat build.
+      - name: Build
+        run: npm run build
