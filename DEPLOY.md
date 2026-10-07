@@ -52,12 +52,30 @@ Vercel → Project → Settings → Environment Variables. Ambil nilainya dari
 | `GOOGLE_DRIVE_FOLDER_KEGIATAN` | ya | folder foto kegiatan |
 | `GOOGLE_OAUTH_CLIENT_ID` | ya | dari Google Cloud → Clients |
 | `GOOGLE_OAUTH_CLIENT_SECRET` | ya | dari Google Cloud → Clients |
-| `SESSION_SECRET` | ya | **boleh berbeda** dari lokal, minimal 32 karakter |
+| `SESSION_SECRET` | ya | **pakai nilai yang SAMA dengan lokal** — lihat catatan di bawah, minimal 32 karakter |
 | `SESSION_TTL_HOURS` | tidak | default 8 jam |
 | `SMTP_*`, `SMTP_FROM` | tidak | hanya untuk notifikasi email |
 | `NEXT_PUBLIC_APP_URL` | ya | `https://<nama-app>.vercel.app` |
 | `GOOGLE_OAUTH_REFRESH_TOKEN` | **tidak** | sengaja dikosongkan — lihat bagian 3 |
 | `GOOGLE_OAUTH_CONNECTED_AT` | tidak | sama, diisi otomatis oleh aplikasi |
+| `UJI_GURU_USERNAME` / `UJI_GURU_PASSWORD` | tidak | hanya untuk skrip uji di komputer, jangan diisi di produksi |
+
+### Cara mengisi: pakai tombol **Import .env**
+
+Berkas **`.env.vercel`** sudah disiapkan di folder proyek — isinya sudah tepat:
+9 kunci wajib + `NEXT_PUBLIC_APP_URL`, **tanpa** token OAuth dan tanpa kredensial
+uji. Di halaman import Vercel, klik **Import .env** lalu pilih berkas itu.
+
+> `.env.vercel` memuat rahasia asli dan sudah di-`.gitignore` (diverifikasi dengan
+> `git check-ignore -v .env.vercel`). Jangan pernah di-commit.
+
+### Kenapa `SESSION_SECRET` harus sama dengan lokal
+
+Token Drive di spreadsheet disimpan **terenkripsi dengan kunci turunan
+`SESSION_SECRET`**. Kalau Vercel memakai `SESSION_SECRET` berbeda, baris token itu
+tidak bisa dibuka: Drive akan berstatus **PUTUS** (bukan error) dan Anda perlu
+menekan **Hubungkan Ulang Drive** sekali setelah deploy supaya token baru
+terenkripsi dengan rahasia produksi. Boleh dipilih, tapi sadari konsekuensinya.
 
 `GOOGLE_OAUTH_REFRESH_TOKEN` **tidak perlu** diisi di Vercel karena token
 disimpan di spreadsheet (bagian 3), sehingga mengganti token tidak memerlukan
@@ -78,6 +96,8 @@ filesystem-nya hanya-baca, jadi:
 - saat membaca, urutan prioritasnya: hasil consent di proses ini → spreadsheet →
   `process.env`. Jadi satu klik hubungkan-ulang **langsung berlaku untuk semua
   instance serverless** tanpa redeploy;
+- karena token di sheet terenkripsi dengan `SESSION_SECRET`, **nilai rahasia itu
+  harus sama** di komputer dan di Vercel selama token lama masih dipakai;
 - state anti-CSRF alur OAuth kini ditandatangani HMAC (stateless), bukan disimpan
   di memori — request pembuat state dan request callback boleh dilayani instance
   yang berbeda.

@@ -32,3 +32,6 @@ JavaScript.txt
 Index.txt
 Kode.gs.txt
 Login.txt
+
+# Berkas env khusus untuk di-import ke Vercel (berisi rahasia asli).
+.env.vercel
