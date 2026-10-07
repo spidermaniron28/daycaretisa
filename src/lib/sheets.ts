@@ -314,6 +314,7 @@ export async function listSiswa(): Promise<Siswa[]> {
       foto: str(b.nilai[SISWA_COL.FOTO]),
       emailOrtu: str(b.nilai[SISWA_COL.EMAIL_ORTU]),
       noWhatsapp: str(b.nilai[SISWA_COL.WA_ORTU]),
+      tanggalLahir: str(b.nilai[SISWA_COL.TANGGAL_LAHIR]),
     }))
 }
 
@@ -325,7 +326,9 @@ export async function siswaByNis(nis: string): Promise<Siswa | null> {
 export async function tambahSiswa(
   s: Omit<Siswa, 'foto' | 'emailOrtu' | 'noWhatsapp'>,
 ): Promise<void> {
-  await appendRows(SHEET.SISWA, [[s.nis, s.nama, s.kelas, s.jk, s.status, '', '', '']])
+  await appendRows(SHEET.SISWA, [
+    [s.nis, s.nama, s.kelas, s.jk, s.status, '', '', '', s.tanggalLahir ?? ''],
+  ])
 }
 
 export async function updateSiswa(
@@ -334,7 +337,18 @@ export async function updateSiswa(
 ): Promise<void> {
   const rowNumber = await cariBaris(SHEET.SISWA, SISWA_COL.NIS, oldNis)
   if (!rowNumber) throw new Error('Data siswa tidak ditemukan.')
-  await updateRow(SHEET.SISWA, rowNumber, SISWA_COL.NIS, [s.nis, s.nama, s.kelas, s.jk, s.status])
+  await updateRow(SHEET.SISWA, rowNumber, SISWA_COL.NIS, [
+    s.nis,
+    s.nama,
+    s.kelas,
+    s.jk,
+    s.status,
+  ])
+  // Tanggal lahir adalah kolom terpisah (8) — ditulis terpisah supaya kolom
+  // 5..7 (Foto/Email/WA) yang ditulis fungsi lain tidak tertimpa.
+  await updateRow(SHEET.SISWA, rowNumber, SISWA_COL.TANGGAL_LAHIR, [
+    s.tanggalLahir ?? '',
+  ])
 
   // Sinkronkan ID Asli & nama di sheet Akun supaya akun siswa tidak rusak
   // (menyalin perilaku updateDataSiswa di Kode.gs lama).
@@ -559,6 +573,13 @@ function barisKeLaporan(b: { rowNumber: number; nilai: string[] }): DataLaporan 
       kebersihan: strOrDash(n[LAPORAN_COL.KEBERSIHAN]),
       obat: strOrDash(n[LAPORAN_COL.OBAT]),
     },
+    pertumbuhan: {
+      beratBadan: strOrDash(n[LAPORAN_COL.BERAT_BADAN] ?? ''),
+      interpretasiBB: strOrDash(n[LAPORAN_COL.INTERPRETASI_BB] ?? ''),
+      tinggiBadan: strOrDash(n[LAPORAN_COL.TINGGI_BADAN] ?? ''),
+      interpretasiTB: strOrDash(n[LAPORAN_COL.INTERPRETASI_TB] ?? ''),
+      lingkarKepala: strOrDash(n[LAPORAN_COL.LINGKAR_KEPALA] ?? ''),
+    },
     perilaku: {
       interaksi: strOrDash(n[LAPORAN_COL.INTERAKSI]),
       kepatuhan: strOrDash(n[LAPORAN_COL.KEPATUHAN]),
@@ -620,6 +641,11 @@ function laporanKeBaris(l: DataLaporan): unknown[] {
   baris[LAPORAN_COL.KEMANDIRIAN] = l.perilaku.kemandirian
   baris[LAPORAN_COL.MOOD] = l.perilaku.mood
   baris[LAPORAN_COL.CATATAN] = l.perilaku.catatanPengasuh
+  baris[LAPORAN_COL.BERAT_BADAN] = l.pertumbuhan.beratBadan
+  baris[LAPORAN_COL.INTERPRETASI_BB] = l.pertumbuhan.interpretasiBB
+  baris[LAPORAN_COL.TINGGI_BADAN] = l.pertumbuhan.tinggiBadan
+  baris[LAPORAN_COL.INTERPRETASI_TB] = l.pertumbuhan.interpretasiTB
+  baris[LAPORAN_COL.LINGKAR_KEPALA] = l.pertumbuhan.lingkarKepala
   baris[LAPORAN_COL.FOTO] = l.fotoKegiatan.length ? JSON.stringify(l.fotoKegiatan) : ''
   baris[LAPORAN_COL.ID] = l.id
   baris[LAPORAN_COL.NOTIFIKASI] = l.notifikasi

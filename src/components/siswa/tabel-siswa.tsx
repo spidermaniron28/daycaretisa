@@ -33,6 +33,8 @@ type FormState = {
   status: 'Aktif' | 'Nonaktif'
   emailOrtu: string
   noWhatsapp: string
+  /** YYYY-MM-DD — dipakai hitung usia anak untuk interpretasi BB/TB. */
+  tanggalLahir: string
   /** Hanya dipakai saat menambah — akun login dibuat sekalian. */
   akunUsername: string
   akunPassword: string
@@ -47,6 +49,7 @@ const KOSONG_FORM: FormState = {
   status: 'Aktif',
   emailOrtu: '',
   noWhatsapp: '',
+  tanggalLahir: '',
   akunUsername: '',
   akunPassword: '',
 }
@@ -91,6 +94,7 @@ export function TabelSiswa({ awal, rombel, bolehUbah = true }: Props) {
       status: s.status === 'Nonaktif' ? 'Nonaktif' : 'Aktif',
       emailOrtu: s.emailOrtu,
       noWhatsapp: s.noWhatsapp,
+      tanggalLahir: s.tanggalLahir,
       akunUsername: '',
       akunPassword: '',
     })
@@ -454,6 +458,19 @@ export function TabelSiswa({ awal, rombel, bolehUbah = true }: Props) {
                 inputMode="tel"
                 onChange={(e) => setForm({ ...form, noWhatsapp: e.target.value })}
                 placeholder="0812xxxxxxx"
+              />
+            </Bidang>
+
+            <Bidang
+              label="Tanggal Lahir"
+              hint="Dipakai menghitung interpretasi berat & tinggi badan (standar WHO)."
+            >
+              <input
+                type="date"
+                className="kolom"
+                value={form.tanggalLahir}
+                max={new Date().toISOString().slice(0, 10)}
+                onChange={(e) => setForm({ ...form, tanggalLahir: e.target.value })}
               />
             </Bidang>
 

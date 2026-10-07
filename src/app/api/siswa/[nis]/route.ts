@@ -24,6 +24,7 @@ export const PATCH = handler(async (req: Request, { params }: Params) => {
     kelas: body.kelas,
     jk: body.jk,
     status: body.status,
+    tanggalLahir: body.tanggalLahir,
   })
   return ok({ ok: true, nis: nisLama })
 })

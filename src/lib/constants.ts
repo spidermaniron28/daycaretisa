@@ -41,7 +41,7 @@ export const AKUN_HEADER = [
 
 /* ----------------------------- Siswa ------------------------------------- */
 /* 0 NIS | 1 Nama | 2 Kelas | 3 L/P | 4 Status | 5 Foto                    */
-/* 6 Email Orang Tua (baru) | 7 No WhatsApp (baru)                          */
+/* 6 Email Orang Tua (baru) | 7 No WhatsApp (baru) | 8 Tanggal Lahir (baru) */
 export const SISWA_COL = {
   NIS: 0,
   NAMA: 1,
@@ -51,6 +51,7 @@ export const SISWA_COL = {
   FOTO: 5,
   EMAIL_ORTU: 6,
   WA_ORTU: 7,
+  TANGGAL_LAHIR: 8,
 } as const
 
 export const SISWA_HEADER = [
@@ -62,6 +63,7 @@ export const SISWA_HEADER = [
   'Foto',
   'Email Orang Tua',
   'No WhatsApp',
+  'Tanggal Lahir',
 ]
 
 /* ----------------------------- Guru -------------------------------------- */
@@ -96,6 +98,7 @@ export const PENGATURAN_HEADER = ['Key', 'Value']
 /* Kolom A..AH = 34 kolom bawaan aplikasi Apps Script lama, urutannya WAJIB
  * dipertahankan karena data lama sudah tersimpan dengan urutan tersebut.
  * 33 Foto Kegiatan | 34 Id Laporan (baru) | 35 Notifikasi (baru)          */
+/* 36 Berat Badan | 37 Interpretasi BB | 38 Tinggi Badan | 39 Interpretasi TB | 40 Lingkar Kepala */
 export const LAPORAN_COL = {
   TIMESTAMP: 0,
   TANGGAL: 1,
@@ -133,9 +136,14 @@ export const LAPORAN_COL = {
   FOTO: 33,
   ID: 34,
   NOTIFIKASI: 35,
+  BERAT_BADAN: 36,
+  INTERPRETASI_BB: 37,
+  TINGGI_BADAN: 38,
+  INTERPRETASI_TB: 39,
+  LINGKAR_KEPALA: 40,
 } as const
 
-export const LAPORAN_TOTAL_KOLOM = 36
+export const LAPORAN_TOTAL_KOLOM = 41
 export const LAPORAN_HEADER = [
   'Timestamp',
   'Tanggal',
@@ -173,6 +181,11 @@ export const LAPORAN_HEADER = [
   'Foto Kegiatan',
   'Id Laporan',
   'Notifikasi',
+  'Berat Badan (kg)',
+  'Interpretasi BB',
+  'Tinggi Badan (cm)',
+  'Interpretasi TB',
+  'Lingkar Kepala (cm)',
 ]
 
 /* Nilai sentinel yang dipakai UI sebagai "tidak diisi" (sama seperti kode lama). */

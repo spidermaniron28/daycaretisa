@@ -11,6 +11,7 @@ import {
   Info,
   X,
   Bed,
+  Ruler,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { KOSONG } from '@/lib/constants'
@@ -221,6 +222,12 @@ function KartuLaporan({
   onToggle,
   onLihatFoto,
 }: KartuProps) {
+  // Bagian pertumbuhan hanya tampil bila laporan ini memuat pengukuran.
+  const p = l.pertumbuhan
+  const adaPertumbuhan = Boolean(
+    p &&
+      (p.beratBadan || p.tinggiBadan || p.lingkarKepala || p.interpretasiBB || p.interpretasiTB),
+  )
   return (
     <article className="bg-white rounded-2xl shadow-[0_4px_20px_rgb(0_0_0/0.03)] border border-gray-200 overflow-hidden">
       {/* ----------------------------- HEADER ----------------------------- */}
@@ -379,6 +386,37 @@ function KartuLaporan({
             </div>
           </div>
 
+          {/* Pertumbuhan & Perkembangan (hanya tampil bila diukur hari itu) */}
+          {adaPertumbuhan && (
+            <div className="space-y-4 pt-4 border-t border-gray-100">
+              <JudikBagian
+                judul="Pertumbuhan & Perkembangan"
+                ikon={<Ruler className="w-4 h-4" />}
+                warna="green"
+              />
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                <KotakInfo
+                  label="Berat Badan"
+                  isi={l.pertumbuhan.beratBadan ? `${l.pertumbuhan.beratBadan} kg` : ''}
+                />
+                <KotakInfo
+                  label="Tinggi Badan"
+                  isi={l.pertumbuhan.tinggiBadan ? `${l.pertumbuhan.tinggiBadan} cm` : ''}
+                />
+                <KotakInfo
+                  label="Lingkar Kepala"
+                  isi={l.pertumbuhan.lingkarKepala ? `${l.pertumbuhan.lingkarKepala} cm` : ''}
+                />
+                {l.pertumbuhan.interpretasiBB && (
+                  <TafsirInfo label="Interpretasi (BB)" tafsir={l.pertumbuhan.interpretasiBB} />
+                )}
+                {l.pertumbuhan.interpretasiTB && (
+                  <TafsirInfo label="Interpretasi (TB)" tafsir={l.pertumbuhan.interpretasiTB} />
+                )}
+              </div>
+            </div>
+          )}
+
           {/* Perilaku */}
           <div className="space-y-4 pt-4 border-t border-gray-100">
             <JudikBagian judul="Perilaku & Interaksi Sosial" ikon={<Smile className="w-4 h-4" />} warna="purple" />
@@ -474,6 +512,7 @@ const WARNA_JUDIK: Record<string, string> = {
   rose: 'border-rose-100',
   purple: 'border-purple-100',
   blue: 'border-blue-100',
+  green: 'border-emerald-100',
 }
 
 const WARNA_IKON: Record<string, string> = {
@@ -482,6 +521,7 @@ const WARNA_IKON: Record<string, string> = {
   rose: 'bg-rose-100 text-rose-600',
   purple: 'bg-purple-100 text-purple-600',
   blue: 'bg-blue-100 text-blue-600',
+  green: 'bg-emerald-100 text-emerald-600',
 }
 
 function JudikBagian({
@@ -508,6 +548,31 @@ function KotakInfo({ label, isi }: { label: string; isi: string }) {
         {label}
       </span>
       <span className="text-[13px] font-semibold text-gray-700">{nilai(isi)}</span>
+    </div>
+  )
+}
+
+/** Hasil interpretasi pertumbuhan — hijau bila aman, merah bila perlu perhatian. */
+function TafsirInfo({ label, tafsir }: { label: string; tafsir: string }) {
+  const aman = /normal|tinggi/i.test(tafsir)
+  return (
+    <div
+      className={cn(
+        'flex flex-col border p-3 rounded-xl',
+        aman ? 'bg-emerald-50 border-emerald-100' : 'bg-red-50 border-red-100',
+      )}
+    >
+      <span className="text-[10px] text-gray-400 font-bold uppercase tracking-wider mb-0.5">
+        {label}
+      </span>
+      <span
+        className={cn(
+          'text-[13px] font-semibold',
+          aman ? 'text-emerald-600' : 'text-red-500',
+        )}
+      >
+        {tafsir}
+      </span>
     </div>
   )
 }

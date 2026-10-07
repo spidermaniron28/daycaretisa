@@ -13,6 +13,7 @@ import { wajibRole } from '@/lib/session'
 import { laporanSchema } from '@/lib/validate'
 import { kirimNotifikasiEmail } from '@/lib/notify'
 import { uuid } from '@/lib/utils'
+import { interpretasiSimpan } from '@/lib/antropometri'
 import type { DataLaporan } from '@/lib/types'
 
 export const dynamic = 'force-dynamic'
@@ -55,6 +56,12 @@ export const POST = handler(async (req: Request) => {
 
   const laporan: DataLaporan = {
     ...body,
+    // Interpretasi BB/TB dihitung ulang dari tanggal lahir anak (sheet Siswa).
+    pertumbuhan: interpretasiSimpan(
+      body.pertumbuhan,
+      await siswaByNis(body.nis),
+      body.tanggal,
+    ),
     id: body.id || uuid(),
     guruNip,
     dibuat: new Date().toISOString(),

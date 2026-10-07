@@ -25,6 +25,7 @@ export interface Siswa {
   foto: string
   emailOrtu: string
   noWhatsapp: string
+  tanggalLahir: string
 }
 
 export interface Guru {
@@ -84,6 +85,13 @@ export interface DataLaporan {
     bakBab: string
     kebersihan: string
     obat: string
+  }
+  pertumbuhan: {
+    beratBadan: string
+    interpretasiBB: string
+    tinggiBadan: string
+    interpretasiTB: string
+    lingkarKepala: string
   }
   perilaku: {
     interaksi: string

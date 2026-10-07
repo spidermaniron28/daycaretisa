@@ -28,6 +28,7 @@ export const POST = handler(async (req: Request) => {
     kelas: body.kelas,
     jk: body.jk,
     status: body.status,
+    tanggalLahir: body.tanggalLahir,
   })
 
   // Akun login ortu/siswa dibuat sekalian supaya langsung muncul di menu

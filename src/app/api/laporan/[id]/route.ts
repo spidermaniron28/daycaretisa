@@ -1,7 +1,8 @@
 import { handler, ok, gagal } from '@/lib/api'
-import { laporanById, updateLaporan, hapusLaporan } from '@/lib/sheets'
+import { laporanById, updateLaporan, hapusLaporan, siswaByNis } from '@/lib/sheets'
 import { wajibRole } from '@/lib/session'
 import { laporanSchema } from '@/lib/validate'
+import { interpretasiSimpan } from '@/lib/antropometri'
 
 export const dynamic = 'force-dynamic'
 // Vercel: panggilan ke Google (unggah foto, tulis sheet) bisa lebih lambat dari
@@ -29,6 +30,12 @@ export const PATCH = handler(async (req: Request, { params }: Params) => {
   await updateLaporan({
     ...sebelumnya.laporan,
     ...body,
+    // Interpretasi BB/TB dihitung ulang dari tanggal lahir anak (sheet Siswa).
+    pertumbuhan: interpretasiSimpan(
+      body.pertumbuhan,
+      await siswaByNis(body.nis),
+      body.tanggal,
+    ),
     id: sebelumnya.laporan.id,
     dibuat: sebelumnya.laporan.dibuat,
     notifikasi: sebelumnya.laporan.notifikasi,

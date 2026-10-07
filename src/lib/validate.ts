@@ -48,6 +48,22 @@ export const laporanSchema = z.object({
     kebersihan: teks,
     obat: teks,
   }),
+  /** Pengukuran pertumbuhan (opsional — hanya diisi saat ada penimbangan). */
+  pertumbuhan: z
+    .object({
+      beratBadan: teksPendek.default(''),
+      interpretasiBB: teksPendek.default(''),
+      tinggiBadan: teksPendek.default(''),
+      interpretasiTB: teksPendek.default(''),
+      lingkarKepala: teksPendek.default(''),
+    })
+    .default({
+      beratBadan: '',
+      interpretasiBB: '',
+      tinggiBadan: '',
+      interpretasiTB: '',
+      lingkarKepala: '',
+    }),
   perilaku: z.object({
     interaksi: teks,
     kepatuhan: teks,
@@ -76,6 +92,9 @@ export const siswaSchema = z.object({
   status: z.enum(['Aktif', 'Nonaktif']).default('Aktif'),
   emailOrtu: z.union([z.email('Format email tidak valid.'), z.literal('')]).default(''),
   noWhatsapp: teksPendek.default(''),
+  /** Format YYYY-MM-DD; kosong = belum diisi. Dipakai hitung usia untuk
+   *  interpretasi berat/tinggi badan (standar WHO). */
+  tanggalLahir: teksPendek.default(''),
   ...akunOtomatis,
 })
 

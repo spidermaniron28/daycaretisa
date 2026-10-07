@@ -74,6 +74,31 @@ async function utama() {
       console.log('  → sheet tidak ada, dibuat baru.')
     }
 
+    // Pastikan grid sheet cukup lebar sebelum menulis — sheet lama bisa
+    // dibuat dengan jumlah kolom lebih kecil daripada header terbaru
+    // (contoh: sheet Laporan 36 kolom, header baru 41).
+    const propSheet = daftarSheet.find((s) => s.properties?.title === rencana.sheet)?.properties
+    const lebar = propSheet?.gridProperties?.columnCount ?? 0
+    if (lebar < rencana.header.length && propSheet?.sheetId != null) {
+      await sheets.spreadsheets.batchUpdate({
+        spreadsheetId: id,
+        requestBody: {
+          requests: [
+            {
+              updateSheetProperties: {
+                properties: {
+                  sheetId: propSheet.sheetId,
+                  gridProperties: { columnCount: rencana.header.length },
+                },
+                fields: 'gridProperties.columnCount',
+              },
+            },
+          ],
+        },
+      })
+      console.log(`  → grid dilebarkan jadi ${rencana.header.length} kolom.`)
+    }
+
     // Baca header yang ada sekarang.
     const res = await sheets.spreadsheets.values.get({
       spreadsheetId: id,

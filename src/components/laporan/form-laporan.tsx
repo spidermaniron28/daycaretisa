@@ -2,7 +2,7 @@
 
 import { useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { Save, Clock, Utensils, Moon, Heart, Smile, ImagePlus, X, Send, Loader2 } from 'lucide-react'
+import { Save, Clock, Utensils, Moon, Heart, Smile, ImagePlus, X, Send, Loader2, Ruler } from 'lucide-react'
 import { toast } from 'sonner'
 import { Bidang } from '@/components/ui/primitives'
 import {
@@ -12,6 +12,12 @@ import {
   labelMaksUkuran,
   type HasilKompres,
 } from '@/lib/image'
+import {
+  hitungUsiaBulan,
+  formatUsia,
+  interpretasiBB,
+  interpretasiTB,
+} from '@/lib/antropometri'
 import { cn } from '@/lib/utils'
 import { OPSI_HABIS, OPSI_KUALITAS_TIDUR } from '@/lib/constants'
 import type { DataLaporan, Siswa } from '@/lib/types'
@@ -39,6 +45,12 @@ const MEAL: Array<{ key: 'sarapan' | 'campagi' | 'siang' | 'camsore'; judul: str
   { key: 'camsore', judul: 'Camilan Sore' },
 ]
 
+/** Parse input desimal yang bisa memakai koma ("7,4"). */
+function parseAngka(v: string): number | null {
+  const n = parseFloat(v.replace(',', '.'))
+  return Number.isFinite(n) && n > 0 ? n : null
+}
+
 function formKosong(nip: string): DataLaporan {
   return {
     id: '',
@@ -55,6 +67,13 @@ function formKosong(nip: string): DataLaporan {
     camsore: { menu: '', habis: '-', catatan: '' },
     tidur: { datang: '', bangun: '', durasi: '', kualitas: 'Baik' },
     kesehatan: { suhu: '', kondisi: '', bakBab: '', kebersihan: '', obat: '' },
+    pertumbuhan: {
+      beratBadan: '',
+      interpretasiBB: '',
+      tinggiBadan: '',
+      interpretasiTB: '',
+      lingkarKepala: '',
+    },
     perilaku: { interaksi: '', kepatuhan: '', kemandirian: '', mood: '', catatanPengasuh: '' },
     fotoKegiatan: [],
     notifikasi: '',
@@ -76,6 +95,17 @@ export function FormLaporan({ siswa, nipGuru, awal, kirimEmailDefault }: Props) 
   const anakAktif = siswa.find((s) => s.nis === form.nis)
   const modeEdit = Boolean(awal?.id)
 
+  /* -------- Pratinjau interpretasi pertumbuhan (langsung saat mengetik) -------- */
+  const usiaAnak =
+    anakAktif?.tanggalLahir && form.tanggal
+      ? hitungUsiaBulan(anakAktif.tanggalLahir, form.tanggal)
+      : null
+  const bbNum = parseAngka(form.pertumbuhan.beratBadan)
+  const tbNum = parseAngka(form.pertumbuhan.tinggiBadan)
+  const jkAnak = anakAktif?.jk === 'P' ? 'P' : 'L'
+  const tafsirBB = usiaAnak !== null && bbNum !== null ? interpretasiBB(bbNum, usiaAnak, jkAnak) : null
+  const tafsirTB = usiaAnak !== null && tbNum !== null ? interpretasiTB(tbNum, usiaAnak, jkAnak) : null
+
   /* ----------------------------- pembantu ------------------------------ */
 
   function ubah<K extends keyof DataLaporan>(key: K, nilai: DataLaporan[K]) {
@@ -91,7 +121,7 @@ export function FormLaporan({ siswa, nipGuru, awal, kirimEmailDefault }: Props) 
   }
 
   function ubahKelompok(
-    kelompok: 'tidur' | 'kesehatan' | 'perilaku',
+    kelompok: 'tidur' | 'kesehatan' | 'pertumbuhan' | 'perilaku',
     field: string,
     nilai: string,
   ) {
@@ -177,10 +207,21 @@ export function FormLaporan({ siswa, nipGuru, awal, kirimEmailDefault }: Props) 
       }
 
       // 2. Simpan laporan dengan URL foto final.
+      // Interpretasi BB/TB dihitung dari tanggal lahir anak saat ini juga,
+      // supaya nilai tersimpan ikut terkirim (server menghitung ulang juga).
       const res = await fetch(`/api/laporan${kirimEmail ? '?kirimEmail=1' : ''}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...form, guruNip: form.guruNip || nipGuru, fotoKegiatan }),
+        body: JSON.stringify({
+          ...form,
+          pertumbuhan: {
+            ...form.pertumbuhan,
+            interpretasiBB: tafsirBB ?? form.pertumbuhan.interpretasiBB,
+            interpretasiTB: tafsirTB ?? form.pertumbuhan.interpretasiTB,
+          },
+          guruNip: form.guruNip || nipGuru,
+          fotoKegiatan,
+        }),
       })
       const json = await res.json()
 
@@ -380,6 +421,64 @@ export function FormLaporan({ siswa, nipGuru, awal, kirimEmailDefault }: Props) 
         </div>
       </Panel>
 
+      {/* ------------------- Pertumbuhan & Perkembangan ------------------- */}
+      <Panel
+        judul="Pertumbuhan & Perkembangan"
+        ikon={<Ruler className="w-4 h-4" />}
+        warna="green"
+      >
+        <p className="text-[12px] text-gray-500 mb-4">
+          Diisi hanya saat ada penimbangan/pengukuran (tidak wajib setiap hari).
+          {usiaAnak !== null ? (
+            <>
+              {' '}Usia anak pada {form.tanggal}: <strong className="text-gray-700">{formatUsia(usiaAnak)}</strong> —
+              interpretasi berat & tinggi badan dihitung otomatis.
+            </>
+          ) : (
+            <>
+              {' '}
+              <span className="text-amber-600">
+                Isi Tanggal Lahir anak di Data Siswa supaya interpretasi bisa dihitung.
+              </span>
+            </>
+          )}
+        </p>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <Bidang label="Berat Badan" hint="dalam kg">
+            <input
+              className="kolom"
+              inputMode="decimal"
+              placeholder="mis. 7.4"
+              value={form.pertumbuhan.beratBadan}
+              onChange={(e) => ubahKelompok('pertumbuhan', 'beratBadan', e.target.value)}
+            />
+            {tafsirBB && <HasilTafsir tafsir={tafsirBB} />}
+          </Bidang>
+
+          <Bidang label="Tinggi Badan" hint="dalam cm">
+            <input
+              className="kolom"
+              inputMode="decimal"
+              placeholder="mis. 69"
+              value={form.pertumbuhan.tinggiBadan}
+              onChange={(e) => ubahKelompok('pertumbuhan', 'tinggiBadan', e.target.value)}
+            />
+            {tafsirTB && <HasilTafsir tafsir={tafsirTB} />}
+          </Bidang>
+
+          <Bidang label="Lingkar Kepala" hint="dalam cm (opsional)">
+            <input
+              className="kolom"
+              inputMode="decimal"
+              placeholder="mis. 44"
+              value={form.pertumbuhan.lingkarKepala}
+              onChange={(e) => ubahKelompok('pertumbuhan', 'lingkarKepala', e.target.value)}
+            />
+          </Bidang>
+        </div>
+      </Panel>
+
       {/* --------------------------- Perilaku ------------------------- */}
       <Panel judul="Perilaku & Interaksi Sosial" ikon={<Smile className="w-4 h-4" />} warna="purple">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -510,6 +609,7 @@ const WARNA_PANEL: Record<string, string> = {
   indigo: 'bg-indigo-100 text-indigo-600',
   rose: 'bg-rose-100 text-rose-600',
   purple: 'bg-purple-100 text-purple-600',
+  green: 'bg-emerald-100 text-emerald-600',
 }
 
 function Panel({
@@ -535,6 +635,21 @@ function Panel({
       </div>
       <div className="p-5">{children}</div>
     </section>
+  )
+}
+
+/** Label interpretasi pertumbuhan (BB/TB) — hijau bila aman, merah bila perlu perhatian. */
+function HasilTafsir({ tafsir }: { tafsir: string }) {
+  const aman = /normal|tinggi/i.test(tafsir)
+  return (
+    <p
+      className={cn(
+        'text-[12px] font-semibold mt-1.5',
+        aman ? 'text-emerald-600' : 'text-red-500',
+      )}
+    >
+      Interpretasi: {tafsir}
+    </p>
   )
 }
 
