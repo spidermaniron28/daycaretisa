@@ -10,30 +10,36 @@ export default async function AdminBeranda() {
   const [stat, pengaturan] = await Promise.all([statistik(), pengaturanAman()])
 
   return (
-    <div className="space-y-6 animasi-masuk max-w-6xl">
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+    <div className="space-y-4 sm:space-y-6 animasi-masuk max-w-6xl">
+      {/*
+        Mobile: 2 kolom seperti dasbor ringkas pada umumnya — tiga kartu
+        muat dalam dua baris (kartu ketiga melintang penuh) tanpa halaman
+        jadi panjang. Sejak md kembali tiga kolom seperti semula.
+      */}
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4 md:gap-6">
         <KartuStatistik
           label="Total Siswa Aktif"
           nilai={angka(stat.siswaAktif)}
           warna="biru"
-          ikon={<Users className="w-6 h-6" />}
+          ikon={<Users className="w-5 h-5 sm:w-6 sm:h-6" />}
         />
         <KartuStatistik
           label="Total Guru"
           nilai={angka(stat.guru)}
           warna="hijau"
-          ikon={<GraduationCap className="w-6 h-6" />}
+          ikon={<GraduationCap className="w-5 h-5 sm:w-6 sm:h-6" />}
         />
         <KartuStatistik
           label="Total Rombel"
           nilai={angka(stat.rombel)}
           warna="ungu"
-          ikon={<Boxes className="w-6 h-6" />}
+          ikon={<Boxes className="w-5 h-5 sm:w-6 sm:h-6" />}
+          className="col-span-2 md:col-span-1"
         />
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="kartu p-6 md:p-8 relative overflow-hidden">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-4 md:gap-6">
+        <div className="kartu p-5 sm:p-6 md:p-8 relative overflow-hidden">
           <div className="relative z-10">
             <div className="flex items-center gap-2 text-green-600 font-bold text-[14px] mb-3">
               <Megaphone className="w-5 h-5" />
@@ -45,7 +51,7 @@ export default async function AdminBeranda() {
           </div>
         </div>
 
-        <div className="kartu p-6 md:p-8">
+        <div className="kartu p-5 sm:p-6 md:p-8">
           <div className="flex items-center gap-2 text-blue-600 font-bold text-[14px] mb-3">
             <Lightbulb className="w-5 h-5" />
             Tahun Pelajaran Berjalan
@@ -59,11 +65,11 @@ export default async function AdminBeranda() {
         </div>
       </div>
 
-      <div className="kartu p-6 md:p-8">
+      <div className="kartu p-5 sm:p-6 md:p-8">
         <h2 className="text-[15px] font-bold text-gray-800 mb-1">Aksi Cepat</h2>
-        <p className="text-[13px] text-gray-500 mb-5">Pintasan ke menu yang paling sering dipakai.</p>
+        <p className="text-[13px] text-gray-500 mb-4 sm:mb-5">Pintasan ke menu yang paling sering dipakai.</p>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
           <AksiCepat href="/admin/siswa" judul="Tambah Siswa" ikon={<UserPlus className="w-5 h-5" />} />
           <AksiCepat href="/admin/laporan" judul="Rekap Laporan" ikon={<Boxes className="w-5 h-5" />} />
           <AksiCepat href="/admin/akun" judul="Kelola Akun" ikon={<UserCog className="w-5 h-5" />} />

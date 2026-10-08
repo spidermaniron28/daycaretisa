@@ -35,24 +35,26 @@ export default async function GuruBeranda() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      {/* Mobile: dua kolom seperti ringkasan admin — hemat tempat, tetap rapi. */}
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4 md:gap-6">
         <KartuStatistik
           label="Laporan Hari Ini"
           nilai={angka(hariIniCount)}
           warna="hijau"
-          ikon={<ClipboardEdit className="w-6 h-6" />}
+          ikon={<ClipboardEdit className="w-5 h-5 sm:w-6 sm:h-6" />}
         />
         <KartuStatistik
           label="Laporan Bulan Ini"
           nilai={angka(bulanIni)}
           warna="biru"
-          ikon={<Megaphone className="w-6 h-6" />}
+          ikon={<Megaphone className="w-5 h-5 sm:w-6 sm:h-6" />}
         />
         <KartuStatistik
           label="Total Siswa Aktif"
           nilai={angka(siswa.filter((s) => (s.status || 'Aktif') === 'Aktif').length)}
           warna="ungu"
-          ikon={<LifeBuoy className="w-6 h-6" />}
+          ikon={<LifeBuoy className="w-5 h-5 sm:w-6 sm:h-6" />}
+          className="col-span-2 md:col-span-1"
         />
       </div>
 

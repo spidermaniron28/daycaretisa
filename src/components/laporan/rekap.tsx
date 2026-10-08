@@ -1,9 +1,11 @@
 'use client'
 
 import { useMemo, useState } from 'react'
-import { Download, Printer, CalendarDays, Filter } from 'lucide-react'
+import { Download, Printer, CalendarDays, Filter, Eye } from 'lucide-react'
 import { toast } from 'sonner'
 import { Kosong } from '@/components/ui/primitives'
+import { Modal } from '@/components/ui/modal'
+import { DetailLaporan, type InfoGuru } from '@/components/laporan/detail-laporan'
 import { angka, labelKelas } from '@/lib/utils'
 import { KOSONG } from '@/lib/constants'
 import type { DataLaporan, Siswa } from '@/lib/types'
@@ -20,6 +22,8 @@ interface Props {
   laporan: Array<{ siswa: Siswa; laporan: DataLaporan[] }>
   rombel: Array<{ kode: string; nama: string }>
   namaSekolah: string
+  /** Data guru penginput per laporan (kunci = id laporan) — untuk atribusi. */
+  guruPerLaporan?: Record<string, InfoGuru | undefined>
 }
 
 const BULAN = [
@@ -27,13 +31,14 @@ const BULAN = [
   'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember',
 ]
 
-export function RekapLaporan({ laporan, rombel, namaSekolah }: Props) {
+export function RekapLaporan({ laporan, rombel, namaSekolah, guruPerLaporan = {} }: Props) {
   const sekarang = new Date()
   const [bulan, setBulan] = useState(sekarang.getMonth() + 1)
   const [tahun, setTahun] = useState(sekarang.getFullYear())
   const [kelas, setKelas] = useState('')
   const [siswaFilter, setSiswaFilter] = useState('')
   const [unduh, setUnduh] = useState(false)
+  const [lihat, setLihat] = useState<{ l: DataLaporan; s: Siswa } | null>(null)
 
   const prefix = `${tahun}-${String(bulan).padStart(2, '0')}`
 
@@ -260,7 +265,8 @@ export function RekapLaporan({ laporan, rombel, namaSekolah }: Props) {
                         <th scope="col" className="px-4 py-3 text-left font-semibold">Makan Siang</th>
                         <th scope="col" className="px-4 py-3 text-left font-semibold w-[70px]">Tidur</th>
                         <th scope="col" className="px-4 py-3 text-left font-semibold">Kesehatan</th>
-                        <th scope="col" className="px-6 py-3 text-left font-semibold">Catatan</th>
+                        <th scope="col" className="px-4 py-3 text-left font-semibold">Catatan</th>
+                        <th scope="col" className="px-4 py-3 text-center font-semibold w-[70px] cetak-sembunyi">Aksi</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -284,6 +290,17 @@ export function RekapLaporan({ laporan, rombel, namaSekolah }: Props) {
                           <td className="px-6 py-3 truncate max-w-[200px] align-middle" title={bersihkan(l.perilaku.catatanPengasuh)}>
                             {bersihkan(l.perilaku.catatanPengasuh) || sel('—')}
                           </td>
+                          <td className="px-4 py-3 text-center align-middle cetak-sembunyi">
+                            <button
+                              type="button"
+                              onClick={() => setLihat({ l, s })}
+                              aria-label={`Lihat laporan ${s.nama} tanggal ${l.tanggal}`}
+                              title="Lihat laporan lengkap"
+                              className="w-8 h-8 bg-blue-50 hover:bg-blue-100 text-blue-600 rounded-md inline-flex items-center justify-center transition-colors"
+                            >
+                              <Eye className="w-4 h-4" />
+                            </button>
+                          </td>
                         </tr>
                       ))}
                     </tbody>
@@ -294,6 +311,28 @@ export function RekapLaporan({ laporan, rombel, namaSekolah }: Props) {
           </div>
         </>
       )}
+
+      {/* ------------- Modal "Lihat" — persis tampilan orang tua ------------ */}
+      <Modal
+        open={lihat !== null}
+        onClose={() => setLihat(null)}
+        title={lihat ? `Laporan ${lihat.s.nama} · ${lihat.l.tanggal}` : ''}
+        deskripsi={
+          lihat
+            ? `Tampilan yang sama seperti yang dilihat orang tua di jurnal harian.`
+            : undefined
+        }
+        lebar="lg"
+        footer={
+          <button type="button" className="tombol-biru" onClick={() => setLihat(null)}>
+            Tutup
+          </button>
+        }
+      >
+        {lihat && (
+          <DetailLaporan l={lihat.l} guru={guruPerLaporan[lihat.l.id] ?? null} />
+        )}
+      </Modal>
     </div>
   )
 }

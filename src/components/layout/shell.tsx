@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, type ReactNode } from 'react'
+import { useMemo, useState, type ReactNode } from 'react'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { Menu, LogOut, Calendar } from 'lucide-react'
@@ -101,7 +101,23 @@ export function Shell({
     }
   }
 
-  const aktif = (href: string) => pathname === href || pathname.startsWith(`${href}/`)
+  /*
+    Menu aktif = kandidat dengan href TERPANJANG yang cocok.
+
+    Pencocokan awalan biasa membuat dua menu ikut menyala sekaligus: di
+    /admin/laporan, Ringkasan (/admin) juga cocok karena "/admin/laporan"
+    diawali "/admin/". Memilih yang paling spesifik memastikan hanya
+    "Rekap Laporan" yang menyala, dan tetap benar untuk portal guru/ortu
+    yang polanya sama (Beranda Guru /guru vs Input Laporan /guru/laporan).
+  */
+  const hrefAktif = useMemo(() => {
+    const kandidat = menu.filter(
+      (m) => pathname === m.href || pathname.startsWith(`${m.href}/`),
+    )
+    return kandidat.sort((a, b) => b.href.length - a.href.length)[0]?.href ?? ''
+  }, [menu, pathname])
+
+  const aktif = (href: string) => href === hrefAktif
 
   return (
     <div className="min-h-screen flex bg-gray-50">
@@ -164,7 +180,7 @@ export function Shell({
         <div className={cn('px-5 py-4 border-t shrink-0', t.border)}>
           {tambahanSidebar}
 
-          <div className="flex items-center gap-3 mb-4">
+          <div className="flex items-center gap-3">
             {session.foto ? (
               <img
                 src={session.foto}
@@ -176,21 +192,26 @@ export function Shell({
                 {inisial}
               </div>
             )}
-            <div className="min-w-0">
+            <div className="min-w-0 flex-1">
               <p className="text-[13px] font-semibold truncate">{session.namaLengkap}</p>
               <p className={cn('text-[11px] truncate', t.sub)}>{subjudul}</p>
             </div>
+            {/*
+              Ikon keluar bersebelahan langsung dengan nama+profil. Hanya ikon
+              (tanpa teks "Keluar") supaya tetap muat di sidebar 250px dan
+              tidak pernah terpotong di layar kecil.
+            */}
+            <button
+              type="button"
+              onClick={prosesKeluar}
+              disabled={keluar}
+              aria-label="Keluar"
+              title="Keluar"
+              className="shrink-0 p-2 -mr-1 text-red-400 hover:text-red-300 hover:bg-white/10 rounded-lg transition-colors disabled:opacity-50"
+            >
+              <LogOut className="w-4 h-4" />
+            </button>
           </div>
-
-          <button
-            type="button"
-            onClick={prosesKeluar}
-            disabled={keluar}
-            className="flex items-center gap-2 text-[13px] text-red-400 hover:text-red-300 font-medium transition-colors w-full disabled:opacity-50"
-          >
-            <LogOut className="w-4 h-4" />
-            {keluar ? 'Keluar...' : 'Keluar'}
-          </button>
         </div>
       </aside>
 
@@ -220,53 +241,55 @@ export function Shell({
               </span>
             )}
 
-            <div className="relative">
-              <button
-                type="button"
-                onClick={() => setMenuAkunBuka((v) => !v)}
-                aria-expanded={menuAkunBuka}
-                aria-label="Menu akun"
-                className="w-9 h-9 rounded-full bg-gray-100 text-gray-600 font-bold text-xs flex items-center justify-center hover:bg-gray-200 transition-colors overflow-hidden"
-              >
-                {/* Sama seperti sidebar: pakai foto profil bila ada, kalau belum
-                    tampilkan inisial nama. */}
-                {session.foto ? (
-                  <img src={session.foto} alt={session.namaLengkap} className="w-full h-full object-cover" />
-                ) : (
-                  inisial
-                )}
-              </button>
+            <div className="flex items-center gap-2 shrink-0">
+              <div className="relative">
+                <button
+                  type="button"
+                  onClick={() => setMenuAkunBuka((v) => !v)}
+                  aria-expanded={menuAkunBuka}
+                  aria-label="Menu akun"
+                  className="w-9 h-9 rounded-full bg-gray-100 text-gray-600 font-bold text-xs flex items-center justify-center hover:bg-gray-200 transition-colors overflow-hidden"
+                >
+                  {/* Sama seperti sidebar: pakai foto profil bila ada, kalau belum
+                      tampilkan inisial nama. */}
+                  {session.foto ? (
+                    <img src={session.foto} alt={session.namaLengkap} className="w-full h-full object-cover" />
+                  ) : (
+                    inisial
+                  )}
+                </button>
 
-              {menuAkunBuka && (
-                <>
-                  <button
-                    type="button"
-                    aria-label="Tutup menu"
-                    className="fixed inset-0 z-40"
-                    onClick={() => setMenuAkunBuka(false)}
-                  />
-                  <div className="absolute right-0 top-11 z-50 w-56 bg-white rounded-xl shadow-xl border border-gray-100 overflow-hidden animasi-masuk">
-                    <div className="px-4 py-3 border-b border-gray-100">
-                      <p className="text-[13px] font-semibold text-gray-800 truncate">
-                        {session.namaLengkap}
-                      </p>
-                      <p className="text-[11px] text-gray-400">
-                        {session.role === 'siswa' ? 'NIS' : session.role === 'guru' ? 'NIP' : 'Peran'}:{' '}
-                        {session.idAsli}
-                      </p>
-                    </div>
+                {menuAkunBuka && (
+                  <>
                     <button
                       type="button"
-                      onClick={prosesKeluar}
-                      disabled={keluar}
-                      className="w-full flex items-center gap-2 px-4 py-3 text-[13px] text-red-600 hover:bg-red-50 transition-colors"
-                    >
-                      <LogOut className="w-4 h-4" />
-                      Keluar
-                    </button>
-                  </div>
-                </>
-              )}
+                      aria-label="Tutup menu"
+                      className="fixed inset-0 z-40"
+                      onClick={() => setMenuAkunBuka(false)}
+                    />
+                    <div className="absolute right-0 top-11 z-50 w-56 bg-white rounded-xl shadow-xl border border-gray-100 overflow-hidden animasi-masuk">
+                      <div className="px-4 py-3 border-b border-gray-100">
+                        <p className="text-[13px] font-semibold text-gray-800 truncate">
+                          {session.namaLengkap}
+                        </p>
+                        <p className="text-[11px] text-gray-400">
+                          {session.role === 'siswa' ? 'NIS' : session.role === 'guru' ? 'NIP' : 'Peran'}:{' '}
+                          {session.idAsli}
+                        </p>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={prosesKeluar}
+                        disabled={keluar}
+                        className="flex items-center gap-2 px-4 py-3 text-[13px] text-red-600 hover:bg-red-50 transition-colors"
+                      >
+                        <LogOut className="w-4 h-4" />
+                        Keluar
+                      </button>
+                    </div>
+                  </>
+                )}
+              </div>
             </div>
           </div>
         </header>

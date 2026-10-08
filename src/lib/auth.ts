@@ -61,30 +61,40 @@ export async function login(
 
   if (!sah) return { ok: false, message: PESAN_GAGAL }
 
-  const foto = await cariFotoProfil(akun.role, akun.idAsli)
+  const profil = await profilPemilik(akun.role, akun.idAsli)
 
   const session: SessionPayload = {
     role: akun.role,
     username: akun.username,
     idAsli: akun.idAsli,
-    namaLengkap: akun.namaLengkap,
-    foto,
+    // Sapaan login diambil dari data induk (sheet Guru/Siswa) lebih dulu:
+    // kolom NAMA di sheet Akun bisa usang bila nama guru/siswa diedit tanpa
+    // sinkronisasi (akar bug "Selamat Datang, Bu Nisa").
+    namaLengkap: profil?.nama || akun.namaLengkap,
+    foto: profil?.foto ?? '',
   }
 
   await buatSession(session)
   return { ok: true, session }
 }
 
-async function cariFotoProfil(role: Role, idAsli: string): Promise<string> {
+/**
+ * Nama + foto seorang guru/siswa dari data induk (sheet Guru/Siswa).
+ * null bila tidak ada data induknya (mis. akun manual tanpa baris guru).
+ */
+async function profilPemilik(
+  role: Role,
+  idAsli: string,
+): Promise<{ nama: string; foto: string } | null> {
   if (role === 'guru') {
     const guru = (await listGuru()).find((g) => g.nip === idAsli)
-    return guru?.foto ?? ''
+    return guru ? { nama: guru.nama, foto: guru.foto } : null
   }
   if (role === 'siswa') {
     const siswa = (await listSiswa()).find((s) => s.nis === idAsli)
-    return siswa?.foto ?? ''
+    return siswa ? { nama: siswa.nama, foto: siswa.foto } : null
   }
-  return ''
+  return null
 }
 
 /** Halaman beranda tiap role. */

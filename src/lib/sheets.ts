@@ -436,6 +436,18 @@ export async function updateGuru(
   const rowNumber = await cariBaris(SHEET.GURU, GURU_COL.NIP, nip)
   if (!rowNumber) throw new Error('Data guru tidak ditemukan.')
   await updateRow(SHEET.GURU, rowNumber, GURU_COL.NIP, [g.nip, g.nama, g.mapel, teksTelepon(g.nohp)])
+
+  // Sinkronkan ID Asli & nama di sheet Akun supaya sapaan login tidak
+  // tertinggal (menyalin perilaku updateSiswa — akar bug sapaan salah).
+  const barisAkun = barisValid(await bacaSheet(SHEET.AKUN))
+  const ketemu = barisAkun.find(
+    (b) =>
+      str(b.nilai[AKUN_COL.ROLE]).toLowerCase() === 'guru' &&
+      str(b.nilai[AKUN_COL.ID_ASLI]) === nip,
+  )
+  if (ketemu) {
+    await updateRow(SHEET.AKUN, ketemu.rowNumber, AKUN_COL.ID_ASLI, [g.nip, g.nama])
+  }
 }
 
 export async function hapusGuru(nip: string): Promise<void> {
