@@ -9,9 +9,11 @@ import { DetailLaporan, type InfoGuru } from './detail-laporan'
  * Jurnal harian untuk orang tua.
  *
  * Dua detail yang dipertahankan dari aplikasi lama:
- *  1. Kartu bisa dibuka-tutup (accordion); laporan yang SUDAH dibaca otomatis
- *     dalam keadaan minimize supaya orang tua langsung melihat laporan baru.
- *  2. Lencana "LAPORAN BARU" berubah jadi "Sudah Dibaca" begitu kartu dibuka.
+ *  1. Kartu bisa dibuka-tutup (accordion); laporan BARU tampil maksimize,
+ *     laporan yang SUDAH pernah dibuka jadi minimize — orang tua langsung
+ *     tahu mana yang belum mereka lihat.
+ *  2. Lencana "LAPORAN BARU" berhenti tampil begitu kartu itu pernah
+ *     disentuh (dibuka/ditutup) — berganti jadi "Sudah Dibaca".
  *
  * Status terbaca disimpan di localStorage per NIS — tidak perlu server, dan
  * tetap tersimpan di HP orang tua setelah menutup browser.
@@ -82,13 +84,21 @@ export function JurnalAnak({ laporan, namaAnak, nis, guruPerLaporan = {} }: Prop
     () => KOSONG_SNAPSHOT,
   )
 
-  /** Kartu yang sengaja ditutup user. Yang tidak ada di sini = terbuka. */
-  const [sengajaDitutup, setSengajaDitutup] = useState<Set<string>>(() => new Set())
+  /**
+   * Pilihan buka/tutup dari user (id → terbuka?). Kalau belum pernah
+   * dipilih, defaultnya: laporan BARU (belum dibaca) tampil maksimize,
+   * laporan yang sudah pernah dibaca tampil minimize.
+   */
+  const [preferensi, setPreferensi] = useState<Record<string, boolean>>({})
 
-  const terbuka = useMemo(
-    () => new Set(laporan.map((l) => l.id).filter((id) => !sengajaDitutup.has(id))),
-    [laporan, sengajaDitutup],
-  )
+  const terbuka = useMemo(() => {
+    const hasil = new Set<string>()
+    for (const l of laporan) {
+      const sudahDibaca = terbaca.includes(l.id)
+      if (preferensi[l.id] ?? !sudahDibaca) hasil.add(l.id)
+    }
+    return hasil
+  }, [laporan, terbaca, preferensi])
 
   function tandaiDibaca(id: string) {
     try {
@@ -103,18 +113,12 @@ export function JurnalAnak({ laporan, namaAnak, nis, guruPerLaporan = {} }: Prop
   }
 
   function toggle(id: string) {
-    if (terbuka.has(id)) {
-      // Tutup
-      setSengajaDitutup((prev) => new Set(prev).add(id))
-    } else {
-      // Buka + tandai sudah dibaca
-      setSengajaDitutup((prev) => {
-        const baru = new Set(prev)
-        baru.delete(id)
-        return baru
-      })
-      tandaiDibaca(id)
-    }
+    const sedangTerbuka = terbuka.has(id)
+    setPreferensi((prev) => ({ ...prev, [id]: !sedangTerbuka }))
+    // Orang tua menyentuh kartu = laporan itu sudah pernah dibuka, jadi
+    // tandai terbaca: lencana "LAPORAN BARU" langsung berganti "Sudah
+    // Dibaca" dan kartu ikut minimize pada kunjungan berikutnya.
+    tandaiDibaca(id)
   }
 
   if (laporan.length === 0) {
