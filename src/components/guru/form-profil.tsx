@@ -181,7 +181,7 @@ export function FormProfilGuru({ awal }: { awal: Guru | null }) {
               </Bidang>
             </div>
 
-            <Bidang label="Email" hint="Dipakai sebagai CC notifikasi laporan.">
+            <Bidang label="Email" hint="Data kontak guru (opsional).">
               <input
                 type="email"
                 className="kolom"

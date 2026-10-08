@@ -5,13 +5,10 @@ import {
   simpanLaporan,
   updateLaporan,
   laporanById,
-  setStatusNotifikasi,
-  guruByNip,
   siswaByNis,
 } from '@/lib/sheets'
 import { wajibRole } from '@/lib/session'
 import { laporanSchema } from '@/lib/validate'
-import { kirimNotifikasiEmail } from '@/lib/notify'
 import { uuid } from '@/lib/utils'
 import { interpretasiSimpan } from '@/lib/antropometri'
 import type { DataLaporan } from '@/lib/types'
@@ -46,7 +43,6 @@ export const GET = handler(async (req: Request) => {
 export const POST = handler(async (req: Request) => {
   const session = await wajibRole('admin', 'guru')
   const body = laporanSchema.parse(await req.json())
-  const kirimEmail = new URL(req.url).searchParams.get('kirimEmail') === '1'
 
   // Guru hanya boleh menyimpan laporan atas namanya sendiri.
   const guruNip = session.role === 'admin' ? body.guruNip : session.idAsli
@@ -65,29 +61,17 @@ export const POST = handler(async (req: Request) => {
     id: body.id || uuid(),
     guruNip,
     dibuat: new Date().toISOString(),
-    notifikasi: '',
   }
 
   if (body.id) {
-    // Saat mengedit, pertahankan timestamp pembuatan & status notifikasi lama.
+    // Saat mengedit, pertahankan timestamp pembuatan lama.
     const sebelumnya = await laporanById(body.id)
     if (!sebelumnya) return ok({ error: 'Laporan tidak ditemukan.' }, 404)
     laporan.dibuat = sebelumnya.laporan.dibuat
-    laporan.notifikasi = sebelumnya.laporan.notifikasi
     await updateLaporan(laporan)
   } else {
     await simpanLaporan(laporan)
   }
 
-  // Notifikasi bersifat best-effort: laporan sudah tersimpan di Sheet, jadi
-  // kegagalan email tidak boleh membuat pengguna mengulang penyimpanan.
-  let notifikasi: { terkirim: boolean; pesan?: string } = { terkirim: false }
-
-  if (kirimEmail) {
-    const [guru, siswa] = await Promise.all([guruByNip(guruNip), siswaByNis(laporan.nis)])
-    notifikasi = await kirimNotifikasiEmail(laporan, guru, siswa)
-    await setStatusNotifikasi(laporan.id, notifikasi.terkirim ? 'TERKIRIM' : 'GAGAL')
-  }
-
-  return ok({ ok: true, id: laporan.id, notifikasi })
+  return ok({ ok: true, id: laporan.id })
 })

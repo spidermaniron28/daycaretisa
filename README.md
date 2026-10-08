@@ -107,9 +107,9 @@ Kolom yang ditambahkan:
 | Sheet | Kolom baru | Fungsi |
 |---|---|---|
 | `Akun` | `PasswordHash`, `Dibuat` | hash scrypt & tanggal pembuatan |
-| `Siswa` | `Email Orang Tua`, `No WhatsApp` | target notifikasi |
-| `Guru` | `Email` | CC notifikasi |
-| `Laporan` | `Id Laporan`, `Notifikasi` | UUID & status kirim email |
+| `Siswa` | `Email Orang Tua`, `No WhatsApp` | kontak orang tua |
+| `Guru` | `Email` | kontak guru |
+| `Laporan` | `Id Laporan` | UUID laporan |
 
 ---
 
@@ -163,21 +163,7 @@ Tidak ada build command khusus. Folder `.txt` di root akan diabaikan Next.js.
 
 ---
 
-## 8. Notifikasi Email (opsional)
-
-Tanpa SMTP, aplikasi tetap berjalan normal — hanya saja email tidak terkirim.
-
-1. Di `.env` / Environment Variables isi `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS`,
-   `SMTP_FROM`.
-   - Gmail: buat **App Password** (akun wajib 2FA), lalu pakai `smtp.gmail.com` port 587.
-2. Isi kolom **Email Orang Tua** pada data siswa (menu Data Siswa).
-3. Aktifkan di menu **Sistem & Akses → Notifikasi Email**, atau centang kotak "Kirim ringkasan
-   ke email orang tua" saat menyimpan laporan.
-4. Status pengiriman bisa dilihat di **Riwayat Laporan** — ada tombol kirim ulang.
-
----
-
-## 9. Struktur Proyek
+## 8. Struktur Proyek
 
 ```
 src/
@@ -189,7 +175,7 @@ src/
 │  │  ├─ laporan/               rekap + export Excel + cetak PDF
 │  │  ├─ siswa|guru|rombel/     master data
 │  │  ├─ akun/                  manajemen akun pengguna
-│  │  └─ sistem/                identitas sekolah, gambar, notifikasi
+│  │  └─ sistem/                identitas sekolah & gambar
 │  ├─ guru/                     portal guru (beranda, siswa, laporan, riwayat, profil)
 │  ├─ ortu/                     portal orang tua (jurnal, profil)
 │  └─ api/                      seluruh route handler
@@ -201,7 +187,6 @@ src/
 │  ├─ password.ts               hash scrypt
 │  ├─ session.ts                JWT + cookie httpOnly
 │  ├─ auth.ts                   layanan login + migrasi lazy
-│  ├─ notify.ts                 email ringkasan ke orang tua
 │  ├─ constants.ts              struktur kolom spreadsheet
 │  ├─ validate.ts               skema zod
 │  ├─ image.ts                  kompresi gambar di browser
@@ -214,7 +199,7 @@ src/
 
 ---
 
-## 10. Rencana Cutover
+## 9. Rencana Cutover
 
 - **Jangan biarkan dua sistem menulis ke spreadsheet yang sama.** Setelah versi Vercel stabil,
   ubah deployment Apps Script lama menjadi read-only, atau hapus deploy-nya.
@@ -230,7 +215,7 @@ src/
 
 ---
 
-## 11. Masalah yang Sering Muncul
+## 10. Masalah yang Sering Muncul
 
 | Gejala | Penyebab & Solusi |
 |---|---|

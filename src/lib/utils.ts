@@ -118,7 +118,7 @@ export function pertama<T>(...args: Array<T | undefined | null>): T {
   return args[0] as T
 }
 
-/** Daftar email valid sederhana — cukup untuk target notifikasi. */
+/** Validasi format email sederhana. */
 export function emailValid(v: string): boolean {
   return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v.trim())
 }

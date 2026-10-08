@@ -3,7 +3,7 @@
 import { useMemo, useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { Pencil, Trash2, Mail, MailCheck, MailWarning, Search } from 'lucide-react'
+import { Pencil, Trash2, Search } from 'lucide-react'
 import { toast } from 'sonner'
 import { Konfirmasi, Modal } from '@/components/ui/modal'
 import { Kosong } from '@/components/ui/primitives'
@@ -65,28 +65,6 @@ export function TabelRiwayat({ laporan, siswa }: Props) {
     }
   }
 
-  async function kirimUlang(l: DataLaporan) {
-    setSibuk(true)
-    try {
-      const res = await fetch('/api/notifikasi/email', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id: l.id }),
-      })
-      const json = await res.json()
-      if (!res.ok) {
-        toast.error(json.pesan ?? json.error ?? 'Gagal mengirim email.')
-        return
-      }
-      toast.success('Email berhasil dikirim ke orang tua.')
-      router.refresh()
-    } catch {
-      toast.error('Gagal terhubung ke server.')
-    } finally {
-      setSibuk(false)
-    }
-  }
-
   return (
     <div className="space-y-5">
       <div className="kartu overflow-hidden">
@@ -129,7 +107,6 @@ export function TabelRiwayat({ laporan, siswa }: Props) {
                       </p>
                       <p className="text-[12px] text-gray-500 mt-0.5">{l.tanggal}</p>
                     </div>
-                    <LencanaNotifikasi status={l.notifikasi} />
                   </div>
                   <div className="flex items-center justify-between gap-3 pl-9">
                     <div className="flex items-center gap-2 min-w-0 text-[12px]">
@@ -161,16 +138,6 @@ export function TabelRiwayat({ laporan, siswa }: Props) {
                       </Link>
                       <button
                         type="button"
-                        onClick={() => kirimUlang(l)}
-                        disabled={sibuk}
-                        title="Kirim ulang email ke orang tua"
-                        aria-label="Kirim ulang email"
-                        className="text-[11px] bg-blue-50 hover:bg-blue-100 text-blue-600 px-2 py-1.5 rounded-md font-medium transition-colors inline-flex items-center"
-                      >
-                        <Mail className="w-3 h-3" />
-                      </button>
-                      <button
-                        type="button"
                         onClick={() => setHapus(l)}
                         aria-label={`Hapus laporan ${l.tanggal}`}
                         title="Hapus"
@@ -194,7 +161,6 @@ export function TabelRiwayat({ laporan, siswa }: Props) {
                     <th scope="col" className="px-4 py-3 text-left font-semibold">Anak</th>
                     <th scope="col" className="px-4 py-3 text-center font-semibold w-[150px]">Datang — Pulang</th>
                     <th scope="col" className="px-4 py-3 text-center font-semibold w-[70px]">Foto</th>
-                    <th scope="col" className="px-4 py-3 text-center font-semibold w-[110px]">Notifikasi</th>
                     <th scope="col" className="px-6 py-3 text-right font-semibold w-[170px]">Aksi</th>
                   </tr>
                 </thead>
@@ -214,9 +180,6 @@ export function TabelRiwayat({ laporan, siswa }: Props) {
                       <td className="px-4 py-4 text-center text-[12px] text-gray-500 align-middle">
                         {l.fotoKegiatan.length > 0 ? l.fotoKegiatan.length : '—'}
                       </td>
-                      <td className="px-4 py-4 text-center align-middle">
-                        <LencanaNotifikasi status={l.notifikasi} />
-                      </td>
                       <td className="px-6 py-4 align-middle">
                         <span className="flex items-center justify-end gap-1.5">
                           <button
@@ -233,15 +196,6 @@ export function TabelRiwayat({ laporan, siswa }: Props) {
                             <Pencil className="w-3 h-3" />
                             Ubah
                           </Link>
-                          <button
-                            type="button"
-                            onClick={() => kirimUlang(l)}
-                            disabled={sibuk}
-                            title="Kirim ulang email ke orang tua"
-                            className="text-[11px] bg-blue-50 hover:bg-blue-100 text-blue-600 px-2 py-1.5 rounded-md font-medium transition-colors inline-flex items-center"
-                          >
-                            <Mail className="w-3 h-3" />
-                          </button>
                           <button
                             type="button"
                             onClick={() => setHapus(l)}
@@ -286,26 +240,6 @@ export function TabelRiwayat({ laporan, siswa }: Props) {
       </Modal>
     </div>
   )
-}
-
-function LencanaNotifikasi({ status }: { status: string }) {
-  if (status === 'TERKIRIM') {
-    return (
-      <span className="inline-flex items-center gap-1 text-[10px] font-bold text-green-600 bg-green-50 border border-green-100 px-2 py-0.5 rounded">
-        <MailCheck className="w-3 h-3" />
-        Terkirim
-      </span>
-    )
-  }
-  if (status === 'GAGAL') {
-    return (
-      <span className="inline-flex items-center gap-1 text-[10px] font-bold text-red-600 bg-red-50 border border-red-100 px-2 py-0.5 rounded">
-        <MailWarning className="w-3 h-3" />
-        Gagal
-      </span>
-    )
-  }
-  return <span className="text-[11px] text-gray-300">—</span>
 }
 
 /** Ringkasan read-only, dipakai dialog "Lihat". */

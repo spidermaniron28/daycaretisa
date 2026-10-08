@@ -1,5 +1,5 @@
 import { notFound } from 'next/navigation'
-import { listSiswa, pengaturanAman, laporanById } from '@/lib/sheets'
+import { listSiswa, laporanById } from '@/lib/sheets'
 import { bacaSession } from '@/lib/session'
 import { FormLaporan } from '@/components/laporan/form-laporan'
 
@@ -11,11 +11,7 @@ export default async function GuruLaporan({
   searchParams: Promise<{ edit?: string }>
 }) {
   const session = await bacaSession()
-  const [siswa, pengaturan, params] = await Promise.all([
-    listSiswa(),
-    pengaturanAman(),
-    searchParams,
-  ])
+  const [siswa, params] = await Promise.all([listSiswa(), searchParams])
 
   let awal = null
   if (params.edit) {
@@ -25,12 +21,5 @@ export default async function GuruLaporan({
     awal = ketemu.laporan
   }
 
-  return (
-    <FormLaporan
-      siswa={siswa}
-      nipGuru={session?.idAsli ?? ''}
-      awal={awal}
-      kirimEmailDefault={pengaturan.email_notifikasi_aktif === 'YA'}
-    />
-  )
+  return <FormLaporan siswa={siswa} nipGuru={session?.idAsli ?? ''} awal={awal} />
 }

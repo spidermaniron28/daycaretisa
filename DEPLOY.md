@@ -54,7 +54,6 @@ Vercel → Project → Settings → Environment Variables. Ambil nilainya dari
 | `GOOGLE_OAUTH_CLIENT_SECRET` | ya | dari Google Cloud → Clients |
 | `SESSION_SECRET` | ya | **pakai nilai yang SAMA dengan lokal** — lihat catatan di bawah, minimal 32 karakter |
 | `SESSION_TTL_HOURS` | tidak | default 8 jam |
-| `SMTP_*`, `SMTP_FROM` | tidak | hanya untuk notifikasi email |
 | `NEXT_PUBLIC_APP_URL` | ya | `https://<nama-app>.vercel.app` |
 | `GOOGLE_OAUTH_REFRESH_TOKEN` | **tidak** | sengaja dikosongkan — lihat bagian 3 |
 | `GOOGLE_OAUTH_CONNECTED_AT` | tidak | sama, diisi otomatis oleh aplikasi |

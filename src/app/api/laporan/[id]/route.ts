@@ -38,7 +38,6 @@ export const PATCH = handler(async (req: Request, { params }: Params) => {
     ),
     id: sebelumnya.laporan.id,
     dibuat: sebelumnya.laporan.dibuat,
-    notifikasi: sebelumnya.laporan.notifikasi,
     guruNip: session.role === 'admin' ? body.guruNip : session.idAsli,
   })
 

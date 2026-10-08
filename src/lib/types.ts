@@ -53,7 +53,6 @@ export type PengaturanKey =
   | 'teks_motivasi'
   | 'teks_pengumuman_guru'
   | 'teks_bantuan'
-  | 'email_notifikasi_aktif'
   /** "YA" bila app Google sudah dipublikasikan (In production) — lihat StatusDrive. */
   | 'drive_dipublikasikan'
 
@@ -101,8 +100,6 @@ export interface DataLaporan {
     catatanPengasuh: string
   }
   fotoKegiatan: string[]
-  /** 'TERKIRIM' | 'GAGAL' | '' */
-  notifikasi: string
   /** ISO timestamp, hanya diisi saat membuat. */
   dibuat: string
 }

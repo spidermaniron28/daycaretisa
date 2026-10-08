@@ -37,7 +37,6 @@ export function FormPengaturan({ awal }: { awal: Pengaturan }) {
     teks_motivasi: awal.teks_motivasi ?? '',
     teks_pengumuman_guru: awal.teks_pengumuman_guru ?? '',
     teks_bantuan: awal.teks_bantuan ?? '',
-    email_notifikasi_aktif: awal.email_notifikasi_aktif ?? 'TIDAK',
   })
   const [gambar, setGambar] = useState<Record<GambarKey, string>>({
     logo: awal.logo_url ?? '',
@@ -210,35 +209,6 @@ export function FormPengaturan({ awal }: { awal: Pengaturan }) {
             />
           </Bidang>
         </div>
-      </section>
-
-      {/* ---------------------------- Notifikasi ---------------------------- */}
-      <section className="kartu p-6 md:p-8">
-        <div className="flex items-start gap-4 mb-6">
-          <span className="p-3 bg-amber-50 rounded-lg text-amber-500">
-            <Save className="w-6 h-6" />
-          </span>
-          <div>
-            <h2 className="text-lg font-bold text-gray-800">Notifikasi Email</h2>
-            <p className="text-[13px] text-gray-500 mt-0.5">
-              Ringkasan laporan harian dikirim otomatis ke email orang tua.
-            </p>
-          </div>
-        </div>
-
-        <Bidang
-          label="Kirim email setelah guru menyimpan laporan"
-          hint="Server tetap harus punya SMTP_HOST, SMTP_USER, dan SMTP_PASS di environment."
-        >
-          <select
-            className="kolom max-w-xs"
-            value={teks.email_notifikasi_aktif}
-            onChange={(e) => setTeks({ ...teks, email_notifikasi_aktif: e.target.value })}
-          >
-            <option value="TIDAK">Tidak — simpan saja</option>
-            <option value="YA">Ya — kirim ringkasan ke orang tua</option>
-          </select>
-        </Bidang>
       </section>
 
       <div className="flex justify-end">

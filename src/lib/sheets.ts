@@ -628,7 +628,6 @@ function barisKeLaporan(b: { rowNumber: number; nilai: string[] }): DataLaporan 
       catatanPengasuh: strOrDash(n[LAPORAN_COL.CATATAN]),
     },
     fotoKegiatan: parseFoto(str(n[LAPORAN_COL.FOTO])),
-    notifikasi: str(n[LAPORAN_COL.NOTIFIKASI]),
   }
 }
 
@@ -688,7 +687,6 @@ function laporanKeBaris(l: DataLaporan): unknown[] {
   baris[LAPORAN_COL.LINGKAR_KEPALA] = l.pertumbuhan.lingkarKepala
   baris[LAPORAN_COL.FOTO] = l.fotoKegiatan.length ? JSON.stringify(l.fotoKegiatan) : ''
   baris[LAPORAN_COL.ID] = l.id
-  baris[LAPORAN_COL.NOTIFIKASI] = l.notifikasi
   return baris
 }
 
@@ -742,12 +740,6 @@ export async function hapusLaporan(id: string): Promise<void> {
   const ketemu = await laporanById(id)
   if (!ketemu) throw new Error('Laporan tidak ditemukan.')
   await clearRow(SHEET.LAPORAN, ketemu.rowNumber)
-}
-
-export async function setStatusNotifikasi(id: string, status: string): Promise<void> {
-  const ketemu = await laporanById(id)
-  if (!ketemu) return
-  await updateRow(SHEET.LAPORAN, ketemu.rowNumber, LAPORAN_COL.NOTIFIKASI, [status])
 }
 
 /** Pastikan laporan lama yang belum punya UUID mendapat Id Laporan. */

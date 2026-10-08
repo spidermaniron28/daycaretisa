@@ -2,7 +2,7 @@
 
 import { useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { Save, Clock, Utensils, Moon, Heart, Smile, ImagePlus, X, Send, Loader2, Ruler } from 'lucide-react'
+import { Save, Clock, Utensils, Moon, Heart, Smile, ImagePlus, X, Loader2, Ruler } from 'lucide-react'
 import { toast } from 'sonner'
 import { Bidang } from '@/components/ui/primitives'
 import {
@@ -35,7 +35,6 @@ interface Props {
   nipGuru: string
   /** Data lama saat mode edit. */
   awal?: DataLaporan | null
-  kirimEmailDefault: boolean
 }
 
 const MEAL: Array<{ key: 'sarapan' | 'campagi' | 'siang' | 'camsore'; judul: string }> = [
@@ -98,11 +97,10 @@ function formKosong(nip: string): DataLaporan {
     },
     perilaku: { interaksi: '', kepatuhan: '', kemandirian: '', mood: '', catatanPengasuh: '' },
     fotoKegiatan: [],
-    notifikasi: '',
   }
 }
 
-export function FormLaporan({ siswa, nipGuru, awal, kirimEmailDefault }: Props) {
+export function FormLaporan({ siswa, nipGuru, awal }: Props) {
   const router = useRouter()
   const fileRef = useRef<HTMLInputElement>(null)
 
@@ -110,7 +108,6 @@ export function FormLaporan({ siswa, nipGuru, awal, kirimEmailDefault }: Props) 
     awal ? normalisasi(awal) : formKosong(nipGuru),
   )
   const [fotoBaru, setFotoBaru] = useState<HasilKompres[]>([])
-  const [kirimEmail, setKirimEmail] = useState(kirimEmailDefault)
   const [sibuk, setSibuk] = useState(false)
   const [memprosesFoto, setMemprosesFoto] = useState(false)
 
@@ -240,7 +237,7 @@ export function FormLaporan({ siswa, nipGuru, awal, kirimEmailDefault }: Props) 
       // 2. Simpan laporan dengan URL foto final.
       // Interpretasi BB/TB dihitung dari tanggal lahir anak saat ini juga,
       // supaya nilai tersimpan ikut terkirim (server menghitung ulang juga).
-      const res = await fetch(`/api/laporan${kirimEmail ? '?kirimEmail=1' : ''}`, {
+      const res = await fetch('/api/laporan', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -262,13 +259,7 @@ export function FormLaporan({ siswa, nipGuru, awal, kirimEmailDefault }: Props) 
         return
       }
 
-      if (json.notifikasi?.terkirim) {
-        toast.success('Laporan tersimpan dan email orang tua berhasil dikirim.')
-      } else if (json.notifikasi?.pesan) {
-        toast.success(`Laporan tersimpan, tapi email gagal: ${json.notifikasi.pesan}`)
-      } else {
-        toast.success('Laporan berhasil disimpan!')
-      }
+      toast.success('Laporan berhasil disimpan!')
 
       setFotoBaru([])
       router.refresh()
@@ -335,13 +326,6 @@ export function FormLaporan({ siswa, nipGuru, awal, kirimEmailDefault }: Props) 
         {anakAktif && (
           <p className="text-[12px] text-gray-500 mt-3">
             Kelas <strong className="text-gray-700">{anakAktif.kelas}</strong>
-            {anakAktif.emailOrtu ? (
-              <>
-                {' '}· Email orang tua: <strong className="text-gray-700">{anakAktif.emailOrtu}</strong>
-              </>
-            ) : (
-              <span className="text-amber-600"> · Email orang tua belum diisi, notifikasi tidak bisa dikirim.</span>
-            )}
           </p>
         )}
 
@@ -604,27 +588,9 @@ export function FormLaporan({ siswa, nipGuru, awal, kirimEmailDefault }: Props) 
       </Panel>
 
       {/* ---------------------------- Simpan --------------------------- */}
-      <div className="kartu p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-        <label className="flex items-center gap-2.5 cursor-pointer select-none">
-          <input
-            type="checkbox"
-            checked={kirimEmail}
-            onChange={(e) => setKirimEmail(e.target.checked)}
-            className="w-4 h-4 rounded border-gray-300 text-blue-700 focus:ring-blue-500"
-          />
-          <span className="text-[13px] text-gray-700">
-            Kirim ringkasan laporan ke email orang tua
-          </span>
-        </label>
-
+      <div className="kartu p-5 flex justify-end">
         <button type="button" onClick={simpan} disabled={sibuk} className="tombol bg-green-600 hover:bg-green-700 px-8 py-3 w-full sm:w-auto">
-          {sibuk ? (
-            <Loader2 className="w-4 h-4 animate-spin" />
-          ) : kirimEmail ? (
-            <Send className="w-4 h-4" />
-          ) : (
-            <Save className="w-4 h-4" />
-          )}
+          {sibuk ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
           {sibuk ? 'Menyimpan...' : 'Simpan Laporan Lengkap'}
         </button>
       </div>

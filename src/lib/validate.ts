@@ -127,7 +127,6 @@ export const pengaturanSchema = z.object({
   teks_motivasi: teks.max(500).default(''),
   teks_pengumuman_guru: teks.max(500).default(''),
   teks_bantuan: teks.max(500).default(''),
-  email_notifikasi_aktif: z.enum(['YA', 'TIDAK']).default('TIDAK'),
   logo_url: z.union([z.url(), z.literal('')]).default(''),
   bg_kiri_url: z.union([z.url(), z.literal('')]).default(''),
   bg_luar_url: z.union([z.url(), z.literal('')]).default(''),

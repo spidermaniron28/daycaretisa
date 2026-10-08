@@ -349,7 +349,7 @@ export function TabelGuru({ awal, rombel }: { awal: Guru[]; rombel: Rombel[] }) 
             <Bidang label="No HP">
               <input className="kolom" value={form.nohp} inputMode="tel" onChange={(e) => setForm({ ...form, nohp: e.target.value })} />
             </Bidang>
-            <Bidang label="Email" hint="Dipakai sebagai CC notifikasi ke wali kelas." className="md:col-span-2">
+            <Bidang label="Email" hint="Data kontak guru (opsional)." className="md:col-span-2">
               <input
                 type="email"
                 className="kolom"

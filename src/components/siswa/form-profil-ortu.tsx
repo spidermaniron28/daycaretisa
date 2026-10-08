@@ -146,7 +146,7 @@ export function FormProfilOrangTua({ awal }: { awal: Siswa | null }) {
           </div>
 
           <div className="flex-1 space-y-5">
-            <Bidang label="Email Orang Tua" hint="Laporan harian dikirim ke alamat ini.">
+            <Bidang label="Email Orang Tua" hint="Data kontak orang tua (opsional).">
               <input
                 type="email"
                 className="kolom"

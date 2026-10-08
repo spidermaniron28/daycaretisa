@@ -460,7 +460,7 @@ export function TabelSiswa({ awal, rombel, bolehUbah = true }: Props) {
               </select>
             </Bidang>
 
-            <Bidang label="Email Orang Tua" hint="Dipakai untuk notifikasi laporan harian.">
+            <Bidang label="Email Orang Tua" hint="Data kontak orang tua (opsional).">
               <input
                 type="email"
                 className="kolom"
