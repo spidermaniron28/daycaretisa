@@ -342,18 +342,23 @@ export async function siswaByNis(nis: string): Promise<Siswa | null> {
   return semua.find((s) => s.nis === nis.toString()) ?? null
 }
 
-export async function tambahSiswa(
-  s: Omit<Siswa, 'foto' | 'emailOrtu' | 'noWhatsapp'>,
-): Promise<void> {
+export async function tambahSiswa(s: Omit<Siswa, 'foto'>): Promise<void> {
   await appendRows(SHEET.SISWA, [
-    [s.nis, s.nama, s.kelas, s.jk, s.status, '', '', '', s.tanggalLahir ?? ''],
+    [
+      s.nis,
+      s.nama,
+      s.kelas,
+      s.jk,
+      s.status,
+      '',
+      s.emailOrtu ?? '',
+      teksTelepon(s.noWhatsapp ?? ''),
+      s.tanggalLahir ?? '',
+    ],
   ])
 }
 
-export async function updateSiswa(
-  oldNis: string,
-  s: Omit<Siswa, 'foto' | 'emailOrtu' | 'noWhatsapp'>,
-): Promise<void> {
+export async function updateSiswa(oldNis: string, s: Omit<Siswa, 'foto'>): Promise<void> {
   const rowNumber = await cariBaris(SHEET.SISWA, SISWA_COL.NIS, oldNis)
   if (!rowNumber) throw new Error('Data siswa tidak ditemukan.')
   await updateRow(SHEET.SISWA, rowNumber, SISWA_COL.NIS, [
@@ -363,9 +368,12 @@ export async function updateSiswa(
     s.jk,
     s.status,
   ])
-  // Tanggal lahir adalah kolom terpisah (8) — ditulis terpisah supaya kolom
-  // 5..7 (Foto/Email/WA) yang ditulis fungsi lain tidak tertimpa.
-  await updateRow(SHEET.SISWA, rowNumber, SISWA_COL.TANGGAL_LAHIR, [
+  // Kolom 6..8 (Email Orang Tua, No WhatsApp, Tanggal Lahir) ditulis bersama;
+  // kolom Foto (5) sengaja dilewati supaya foto profil yang diubah orang tua
+  // tidak tertimpa oleh penyuntingan data dari admin.
+  await updateRow(SHEET.SISWA, rowNumber, SISWA_COL.EMAIL_ORTU, [
+    s.emailOrtu ?? '',
+    teksTelepon(s.noWhatsapp ?? ''),
     s.tanggalLahir ?? '',
   ])
 
@@ -425,17 +433,18 @@ export async function guruByNip(nip: string): Promise<Guru | null> {
   return semua.find((g) => g.nip === nip.toString()) ?? null
 }
 
-export async function tambahGuru(g: Omit<Guru, 'foto' | 'email'>): Promise<void> {
-  await appendRows(SHEET.GURU, [[g.nip, g.nama, g.mapel, teksTelepon(g.nohp), '', '']])
+export async function tambahGuru(g: Omit<Guru, 'foto'>): Promise<void> {
+  await appendRows(SHEET.GURU, [
+    [g.nip, g.nama, g.mapel, teksTelepon(g.nohp), '', g.email ?? ''],
+  ])
 }
 
-export async function updateGuru(
-  nip: string,
-  g: Omit<Guru, 'foto' | 'email'>,
-): Promise<void> {
+export async function updateGuru(nip: string, g: Omit<Guru, 'foto'>): Promise<void> {
   const rowNumber = await cariBaris(SHEET.GURU, GURU_COL.NIP, nip)
   if (!rowNumber) throw new Error('Data guru tidak ditemukan.')
   await updateRow(SHEET.GURU, rowNumber, GURU_COL.NIP, [g.nip, g.nama, g.mapel, teksTelepon(g.nohp)])
+  // Kolom Email (5) ditulis terpisah — kolom Foto (4) jangan tertimpa.
+  await updateRow(SHEET.GURU, rowNumber, GURU_COL.EMAIL, [g.email ?? ''])
 
   // Sinkronkan ID Asli & nama di sheet Akun supaya sapaan login tidak
   // tertinggal (menyalin perilaku updateSiswa — akar bug sapaan salah).

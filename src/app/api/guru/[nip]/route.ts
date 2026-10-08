@@ -23,6 +23,7 @@ export const PATCH = handler(async (req: Request, { params }: Params) => {
     nama: body.nama,
     mapel: body.mapel,
     nohp: body.nohp,
+    email: body.email,
   })
   return ok({ ok: true, nip: nipLama })
 })

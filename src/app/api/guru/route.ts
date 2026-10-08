@@ -21,7 +21,7 @@ export const POST = handler(async (req: Request) => {
   // masih kosong — jadi NIP guru yang sudah dihapus bisa terpakai lagi.
   const nip = nipGuruBerikutnya((await listGuru()).map((g) => g.nip))
 
-  await tambahGuru({ nip, nama: body.nama, mapel: body.mapel, nohp: body.nohp })
+  await tambahGuru({ nip, nama: body.nama, mapel: body.mapel, nohp: body.nohp, email: body.email })
 
   // Akun login dibuat sekalian supaya guru baru langsung muncul di menu
   // Akun Pengguna. Username default = NIP, sandi default = SANDI_AWAL.guru.

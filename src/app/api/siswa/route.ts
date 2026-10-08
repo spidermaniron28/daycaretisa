@@ -28,6 +28,8 @@ export const POST = handler(async (req: Request) => {
     kelas: body.kelas,
     jk: body.jk,
     status: body.status,
+    emailOrtu: body.emailOrtu,
+    noWhatsapp: body.noWhatsapp,
     tanggalLahir: body.tanggalLahir,
   })
 

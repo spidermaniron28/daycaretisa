@@ -22,9 +22,16 @@ export const PATCH = handler(async (req: Request) => {
       nama: body.nama,
       mapel: body.mapel,
       nohp: body.nohp,
+      email: body.email,
     })
   } else {
-    await tambahGuru({ nip: session.idAsli, nama: body.nama, mapel: body.mapel, nohp: body.nohp })
+    await tambahGuru({
+      nip: session.idAsli,
+      nama: body.nama,
+      mapel: body.mapel,
+      nohp: body.nohp,
+      email: body.email,
+    })
   }
 
   if (fotoUrl) {
