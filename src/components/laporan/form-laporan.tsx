@@ -51,6 +51,28 @@ function parseAngka(v: string): number | null {
   return Number.isFinite(n) && n > 0 ? n : null
 }
 
+/**
+ * Hitung durasi tidur dari jam mulai & bangun → "1 jam 30 menit".
+ * Mengembalikan null bila salah satu jam belum terisi.
+ */
+function durasiOtomatis(datang: string, bangun: string): string | null {
+  const keMenit = (jam: string): number | null => {
+    const [h, m] = jam.split(':').map(Number)
+    return Number.isFinite(h) && Number.isFinite(m) ? h * 60 + m : null
+  }
+  const mulai = keMenit(datang)
+  const selesai = keMenit(bangun)
+  if (mulai === null || selesai === null) return null
+
+  // Bangun sebelum jam mulai dianggap melewati tengah malam.
+  const total = (selesai - mulai + 1440) % 1440
+  const jam = Math.floor(total / 60)
+  const menit = total % 60
+  if (jam > 0 && menit > 0) return `${jam} jam ${menit} menit`
+  if (jam > 0) return `${jam} jam`
+  return `${menit} menit`
+}
+
 function formKosong(nip: string): DataLaporan {
   return {
     id: '',
@@ -129,6 +151,15 @@ export function FormLaporan({ siswa, nipGuru, awal, kirimEmailDefault }: Props) 
       ...f,
       [kelompok]: { ...f[kelompok], [field]: nilai },
     }))
+  }
+
+  /** Ubah jam tidur — Durasi ikut terhitung otomatis selama kedua jam terisi. */
+  function ubahWaktuTidur(field: 'datang' | 'bangun', nilai: string) {
+    setForm((f) => {
+      const tidur = { ...f.tidur, [field]: nilai }
+      tidur.durasi = durasiOtomatis(tidur.datang, tidur.bangun) ?? ''
+      return { ...f, tidur }
+    })
   }
 
   async function pilihFoto(e: React.ChangeEvent<HTMLInputElement>) {
@@ -376,12 +407,12 @@ export function FormLaporan({ siswa, nipGuru, awal, kirimEmailDefault }: Props) 
       <Panel judul="Istirahat Siang" ikon={<Moon className="w-4 h-4" />} warna="indigo">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
           <Bidang label="Mulai Tidur">
-            <input type="time" className="kolom" value={form.tidur.datang} onChange={(e) => ubahKelompok('tidur', 'datang', e.target.value)} />
+            <input type="time" className="kolom" value={form.tidur.datang} onChange={(e) => ubahWaktuTidur('datang', e.target.value)} />
           </Bidang>
           <Bidang label="Bangun">
-            <input type="time" className="kolom" value={form.tidur.bangun} onChange={(e) => ubahKelompok('tidur', 'bangun', e.target.value)} />
+            <input type="time" className="kolom" value={form.tidur.bangun} onChange={(e) => ubahWaktuTidur('bangun', e.target.value)} />
           </Bidang>
-          <Bidang label="Durasi" hint="mis. 1 jam 30 menit">
+          <Bidang label="Durasi" hint="Terisi otomatis dari jam tidur — boleh diperbaiki manual">
             <input className="kolom" value={form.tidur.durasi} onChange={(e) => ubahKelompok('tidur', 'durasi', e.target.value)} />
           </Bidang>
           <Bidang label="Kualitas">
