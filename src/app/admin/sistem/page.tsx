@@ -20,8 +20,9 @@ export default async function HalamanSistem() {
 
   return (
     <div className="space-y-6 max-w-5xl">
-      <KartuKoneksi awal={koneksi} redirectUri={redirectUri} />
       <FormPengaturan awal={pengaturan} />
+      {/* Status koneksi ditaruh paling bawah, setelah fitur Notifikasi Email. */}
+      <KartuKoneksi awal={koneksi} redirectUri={redirectUri} />
     </div>
   )
 }
