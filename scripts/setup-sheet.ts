@@ -17,6 +17,7 @@ import {
   LAPORAN_HEADER,
   PENGATURAN_HEADER,
   ROMBEL_HEADER,
+  SARAN_HEADER,
   SISWA_HEADER,
 } from '../src/lib/constants'
 import { getSheets, spreadsheetId } from '../src/lib/google'
@@ -36,6 +37,7 @@ const RENCANA: Rencana[] = [
   { sheet: 'Rombel', header: ROMBEL_HEADER, minimum: 3 },
   { sheet: 'Pengaturan', header: PENGATURAN_HEADER, minimum: 2 },
   { sheet: 'Laporan', header: LAPORAN_HEADER, minimum: 34 },
+  { sheet: 'Saran', header: SARAN_HEADER, minimum: 7 },
 ]
 
 function hurufKolom(index0: number): string {

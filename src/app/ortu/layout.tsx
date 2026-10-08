@@ -1,5 +1,5 @@
 import { redirect } from 'next/navigation'
-import { BookOpen, UserCog } from 'lucide-react'
+import { BookOpen, UserCog, Lightbulb } from 'lucide-react'
 import { bacaSession } from '@/lib/session'
 import { pengaturanAman } from '@/lib/sheets'
 import { Shell, type ItemMenu } from '@/components/layout/shell'
@@ -9,6 +9,7 @@ export const dynamic = 'force-dynamic'
 
 const MENU: ItemMenu[] = [
   { id: 'beranda', label: 'Jurnal Harian', href: '/ortu', ikon: <BookOpen className="w-5 h-5" /> },
+  { id: 'saran', label: 'Saran & Masukan', href: '/ortu/saran', ikon: <Lightbulb className="w-5 h-5" /> },
   { id: 'profil', label: 'Profil & Keamanan', href: '/ortu/profil', ikon: <UserCog className="w-5 h-5" /> },
 ]
 

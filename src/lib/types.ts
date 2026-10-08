@@ -58,6 +58,20 @@ export type PengaturanKey =
 
 export type Pengaturan = Record<string, string>
 
+/** Saran & masukan dari orang tua (sheet Saran). */
+export interface Saran {
+  id: string
+  /** ISO timestamp pengiriman. */
+  waktu: string
+  nis: string
+  /** Nama penerima saat saran dikirim (snapshot, tetap ada walau siswa hapus). */
+  nama: string
+  kelas: string
+  pesan: string
+  /** 'BARU' (belum dilihat admin) | 'DIBACA' */
+  status: string
+}
+
 export interface MekanismeMakan {
   menu: string
   habis: string

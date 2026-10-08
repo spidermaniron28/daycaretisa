@@ -11,6 +11,7 @@ export const SHEET = {
   ROMBEL: 'Rombel',
   PENGATURAN: 'Pengaturan',
   LAPORAN: 'Laporan',
+  SARAN: 'Saran',
 } as const
 
 /** Jumlah baris data = lastRow - header. */
@@ -187,6 +188,21 @@ export const LAPORAN_HEADER = [
   'Interpretasi TB',
   'Lingkar Kepala (cm)',
 ]
+
+/* ---------------------------- Saran & Masukan --------------------------- */
+/* 0 Id | 1 Waktu | 2 NIS | 3 Nama Pengirim | 4 Kelas | 5 Pesan | 6 Status  */
+/* Status: 'BARU' (belum dilihat admin) | 'DIBACA' (sudah dilihat admin)    */
+export const SARAN_COL = {
+  ID: 0,
+  WAKTU: 1,
+  NIS: 2,
+  NAMA: 3,
+  KELAS: 4,
+  PESAN: 5,
+  STATUS: 6,
+} as const
+
+export const SARAN_HEADER = ['Id', 'Waktu', 'NIS', 'Nama Pengirim', 'Kelas', 'Pesan', 'Status']
 
 /* Nilai sentinel yang dipakai UI sebagai "tidak diisi" (sama seperti kode lama). */
 export const KOSONG = '-'

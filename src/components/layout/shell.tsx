@@ -21,6 +21,8 @@ export interface ItemMenu {
   label: string
   href: string
   ikon: ReactNode
+  /** Lencana notifikasi angka (mis. jumlah saran baru) — tampil bila > 0. */
+  lencana?: number
 }
 
 interface Props {
@@ -173,6 +175,14 @@ export function Shell({
             >
               <span className={cn('shrink-0', aktif(m.href) && 'text-blue-400')}>{m.ikon}</span>
               <span className="truncate">{m.label}</span>
+              {(m.lencana ?? 0) > 0 && (
+                <span
+                  title={`${m.lencana} baru`}
+                  className="ml-auto shrink-0 min-w-[20px] h-5 px-1.5 rounded-full bg-red-500 text-white text-[11px] font-bold flex items-center justify-center"
+                >
+                  {m.lencana}
+                </span>
+              )}
             </Link>
           ))}
         </nav>

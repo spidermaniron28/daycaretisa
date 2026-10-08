@@ -1,5 +1,12 @@
 import 'server-only'
-import { getSheets, spreadsheetId, bacaSheet, barisValid, invalidasiCacheSheet } from './google'
+import {
+  getSheets,
+  spreadsheetId,
+  bacaSheet,
+  barisValid,
+  invalidasiCacheSheet,
+  type BarisSheet,
+} from './google'
 import {
   SHEET,
   AKUN_COL,
@@ -9,9 +16,10 @@ import {
   LAPORAN_COL,
   LAPORAN_TOTAL_KOLOM,
   PENGATURAN_COL,
+  SARAN_COL,
 } from './constants'
 import { str, strOrDash, uuid } from './utils'
-import type { Akun, DataLaporan, Guru, Pengaturan, Rombel, Role, Siswa } from './types'
+import type { Akun, DataLaporan, Guru, Pengaturan, Rombel, Role, Saran, Siswa } from './types'
 
 /* ---------------------------------------------------------------------------
  * Repository: satu-satunya tempat yang boleh bicara langsung dengan sheet.
@@ -752,6 +760,84 @@ export async function pastikanIdLaporan(): Promise<number> {
     diperbarui++
   }
   return diperbarui
+}
+
+/* =========================== SARAN & MASUKAN ============================ */
+
+/**
+ * Baca isi sheet Saran.
+ *
+ * Sheet-nya dibuat oleh `npm run setup:sheet`; bila belum ada (setup belum
+ * pernah jalan), bacaan gagal → anggap kosong supaya menu admin/orang tua
+ * tetap terbuka, bukan error 500.
+ */
+async function barisSaran(): Promise<BarisSheet[]> {
+  const baris = await bacaSheet(SHEET.SARAN).catch(() => [] as BarisSheet[])
+  return barisValid(baris)
+}
+
+function barisKeSaran(b: BarisSheet): Saran {
+  return {
+    id: str(b.nilai[SARAN_COL.ID]),
+    waktu: str(b.nilai[SARAN_COL.WAKTU]),
+    nis: str(b.nilai[SARAN_COL.NIS]),
+    nama: str(b.nilai[SARAN_COL.NAMA]),
+    kelas: str(b.nilai[SARAN_COL.KELAS]),
+    pesan: str(b.nilai[SARAN_COL.PESAN]),
+    status: str(b.nilai[SARAN_COL.STATUS]),
+  }
+}
+
+/** Semua saran & masukan (terbaru di atas) — untuk admin. */
+export async function listSaran(): Promise<Saran[]> {
+  const hasil: Saran[] = []
+  for (const b of await barisSaran()) {
+    if (!str(b.nilai[SARAN_COL.ID])) continue
+    hasil.push(barisKeSaran(b))
+  }
+  return hasil.reverse()
+}
+
+/** Saran milik seorang anak (terbaru di atas) — untuk portal orang tua. */
+export async function listSaranByNis(nis: string): Promise<Saran[]> {
+  const hasil: Saran[] = []
+  for (const b of await barisSaran()) {
+    if (str(b.nilai[SARAN_COL.NIS]) !== nis.toString()) continue
+    hasil.push(barisKeSaran(b))
+  }
+  return hasil.reverse()
+}
+
+/** Jumlah saran yang belum dilihat admin — dipakai lencana notifikasi sidebar. */
+export async function jumlahSaranBaru(): Promise<number> {
+  let jumlah = 0
+  for (const b of await barisSaran()) {
+    if (str(b.nilai[SARAN_COL.STATUS]) === 'BARU') jumlah++
+  }
+  return jumlah
+}
+
+/** Orang tua mengirim saran baru. */
+export async function tambahSaran(s: {
+  nis: string
+  nama: string
+  kelas: string
+  pesan: string
+}): Promise<void> {
+  await appendRows(SHEET.SARAN, [
+    [uuid(), new Date().toISOString(), s.nis, s.nama, s.kelas, s.pesan, 'BARU'],
+  ])
+}
+
+/** Tandai semua saran 'BARU' → 'DIBACA'. Mengembalikan jumlah baris yang berubah. */
+export async function tandaiSemuaSaranDibaca(): Promise<number> {
+  let jumlah = 0
+  for (const b of await barisSaran()) {
+    if (str(b.nilai[SARAN_COL.STATUS]) !== 'BARU') continue
+    await updateRow(SHEET.SARAN, b.rowNumber, SARAN_COL.STATUS, ['DIBACA'])
+    jumlah++
+  }
+  return jumlah
 }
 
 /* ============================== STATISTIK ================================ */

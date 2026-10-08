@@ -16,6 +16,7 @@ const DAFTAR: Array<{ path: string; judul: string; sub: string }> = [
   { path: '/admin/guru', judul: 'Kelola Data Guru', sub: 'Data pengajar dan kelas yang diampu.' },
   { path: '/admin/rombel', judul: 'Kelola Rombel / Kelas', sub: 'Kelas yang muncul sebagai pilihan pada data siswa.' },
   { path: '/admin/akun', judul: 'Manajemen Akun Pengguna', sub: 'Akun portal untuk administrator, guru, dan orang tua.' },
+  { path: '/admin/saran', judul: 'Saran & Masukan', sub: 'Masukan dari orang tua untuk kemajuan daycare.' },
   { path: '/admin/sistem', judul: 'Pengaturan Sistem', sub: 'Identitas sekolah, gambar, dan teks beranda tiap portal.' },
   { path: '/admin', judul: 'Beranda Administrator', sub: 'Selamat datang kembali! Kelola data rapor hari ini.' },
 
@@ -27,6 +28,7 @@ const DAFTAR: Array<{ path: string; judul: string; sub: string }> = [
   { path: '/guru', judul: 'Beranda Guru', sub: 'Selamat datang di portal pengasuhan harian.' },
 
   // Orang tua
+  { path: '/ortu/saran', judul: 'Saran & Masukan', sub: 'Sampaikan masukan Anda untuk kemajuan daycare.' },
   { path: '/ortu/profil', judul: 'Profil & Keamanan', sub: 'Data anak, foto profil, dan kata sandi akun Anda.' },
   { path: '/ortu', judul: 'Jurnal Harian Anak', sub: 'Rekam aktivitas harian anak di sekolah.' },
 ]

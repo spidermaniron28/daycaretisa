@@ -132,6 +132,10 @@ export const pengaturanSchema = z.object({
   bg_luar_url: z.union([z.url(), z.literal('')]).default(''),
 })
 
+export const saranSchema = z.object({
+  pesan: z.string().trim().min(3, 'Tuliskan saran minimal 3 karakter.').max(2000),
+})
+
 export const profilGuruSchema = z.object({
   nip: teksPendek,
   nama: z.string().trim().min(1, 'Nama wajib diisi.').max(200),
