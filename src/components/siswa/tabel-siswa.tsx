@@ -7,7 +7,7 @@ import { toast } from 'sonner'
 import { Modal, Konfirmasi } from '@/components/ui/modal'
 import { Bidang, Kosong } from '@/components/ui/primitives'
 import { SANDI_AWAL } from '@/lib/constants'
-import { nisSiswaBerikutnya, bandingkanNisSiswa, labelKelas } from '@/lib/utils'
+import { nisSiswaBerikutnya, bandingkanNisSiswa, labelKelas, usiaBulan, kelasDariUsia } from '@/lib/utils'
 import type { Siswa, Rombel } from '@/lib/types'
 
 /* ---------------------------------------------------------------------------
@@ -74,6 +74,15 @@ export function TabelSiswa({ awal, rombel, bolehUbah = true }: Props) {
       : [...data]
     return hasil.sort((a, b) => bandingkanNisSiswa(a.nis, b.nis))
   }, [data, cari])
+
+  /** Usia (bulan) bila tanggal lahir sudah diisi — dipakai memilih kelas. */
+  const usiaSiswa = form?.tanggalLahir ? usiaBulan(form.tanggalLahir) : null
+  const kelasOtomatis = form?.tanggalLahir ? kelasDariUsia(form.tanggalLahir, rombel) : null
+
+  function labelUntukKode(kode: string): string {
+    const r = rombel.find((x) => x.kode === kode)
+    return r ? labelKelas(r.kode, r.nama) : kode
+  }
 
   /** Buka form tambah dengan NIS otomatis: nomor terkecil yang masih kosong. */
   function tambah() {
@@ -404,7 +413,17 @@ export function TabelSiswa({ awal, rombel, bolehUbah = true }: Props) {
               />
             </Bidang>
 
-            <Bidang label="Kelas" wajib hint="Pilih dari daftar Rombel.">
+            <Bidang
+              label="Kelas"
+              wajib
+              hint={
+                kelasOtomatis
+                  ? `Terisi otomatis dari Tanggal Lahir (usia ${kelasOtomatis.usia} bulan): ${labelUntukKode(kelasOtomatis.kode)}. Bisa diubah manual.`
+                  : usiaSiswa !== null
+                    ? `Usia ${usiaSiswa} bulan di luar rentang kelas yang tersedia — pilih kelas manual.`
+                    : 'Pilih dari daftar Rombel. Isi Tanggal Lahir agar kelas terpilih otomatis.'
+              }
+            >
               <select
                 className="kolom"
                 value={form.kelas}
@@ -463,14 +482,20 @@ export function TabelSiswa({ awal, rombel, bolehUbah = true }: Props) {
 
             <Bidang
               label="Tanggal Lahir"
-              hint="Dipakai menghitung interpretasi berat & tinggi badan (standar WHO)."
+              hint="Menentukan kelas otomatis & menghitung interpretasi berat/tinggi badan (standar WHO)."
             >
               <input
                 type="date"
                 className="kolom"
                 value={form.tanggalLahir}
                 max={new Date().toISOString().slice(0, 10)}
-                onChange={(e) => setForm({ ...form, tanggalLahir: e.target.value })}
+                onChange={(e) => {
+                  const tanggalLahir = e.target.value
+                  const auto = kelasDariUsia(tanggalLahir, rombel)
+                  // Kelas ikut menyesuaikan tanggal lahir; kelas lama dipertahankan
+                  // bila usianya di luar rentang kelas yang ada.
+                  setForm({ ...form, tanggalLahir, kelas: auto ? auto.kode : form.kelas })
+                }}
               />
             </Bidang>
 

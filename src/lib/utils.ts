@@ -48,6 +48,68 @@ export function inisial(nama: string): string {
   return nama.trim().charAt(0).toUpperCase() || '?'
 }
 
+/* --------------------------- Usia & kelas -------------------------------- */
+/*
+ * Kelas daycare ditentukan oleh usia anak (dalam bulan). Rentang usia dibaca
+ * dari nama/kode kelas itu sendiri, mis. "Daycare 1 bln - 12 bln" => 1..12.
+ * Dengan begitu kelas baru yang ditambahkan admin (mis. "Daycare 43 bln -
+ * 60 bln") ikut terbaca otomatis tanpa perlu mengubah kode.
+ */
+
+/** Rentang usia (bulan) dari nama kelas. Null bila tidak ada polanya. */
+export function rentangUsiaKelas(nama: string): { min: number; max: number } | null {
+  const cocok = nama.match(/\d+/g)
+  if (!cocok || cocok.length < 2) return null
+  const min = Number(cocok[0])
+  const max = Number(cocok[cocok.length - 1])
+  if (!Number.isFinite(min) || !Number.isFinite(max) || max < min) return null
+  return { min, max }
+}
+
+/**
+ * Usia dalam bulan penuh pada tanggal acuan (default: hari ini).
+ * Menerima format ISO "YYYY-MM-DD" (nilai <input type="date">).
+ * Null bila tanggal kosong/tidak valid atau masih di masa depan.
+ */
+export function usiaBulan(tanggalLahir: string, acuan: Date = new Date()): number | null {
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(tanggalLahir.trim())
+  if (!m) return null
+  const th = Number(m[1])
+  const bl = Number(m[2])
+  const hr = Number(m[3])
+  if (bl < 1 || bl > 12 || hr < 1 || hr > 31) return null
+  let bulan = (acuan.getFullYear() - th) * 12 + (acuan.getMonth() + 1 - bl)
+  if (acuan.getDate() < hr) bulan -= 1
+  return bulan < 0 ? null : bulan
+}
+
+/**
+ * Kelas yang cocok untuk usia anak pada tanggal lahir tertentu.
+ *
+ * Anak yang belum genap 1 bulan (usia 0) diarahkan ke kelas termuda agar
+ * tetap mendapat kelas. Bila usianya melewati kelas tertinggi, hasilnya null
+ * supaya UI bisa memperingatkan alih-alih menebak kelas yang salah.
+ */
+export function kelasDariUsia(
+  tanggalLahir: string,
+  rombel: ReadonlyArray<{ kode: string; nama: string }>,
+): { kode: string; usia: number } | null {
+  const usia = usiaBulan(tanggalLahir)
+  if (usia === null) return null
+
+  const berentang = rombel
+    .map((r) => ({ r, rentang: rentangUsiaKelas(r.nama || r.kode) }))
+    .filter((x): x is { r: { kode: string; nama: string }; rentang: { min: number; max: number } } => x.rentang !== null)
+    .sort((a, b) => a.rentang.min - b.rentang.min)
+
+  if (berentang.length === 0) return null
+
+  const cocok = berentang.find((x) => usia >= x.rentang.min && usia <= x.rentang.max)
+  if (cocok) return { kode: cocok.r.kode, usia }
+  if (usia < berentang[0].rentang.min) return { kode: berentang[0].r.kode, usia }
+  return null
+}
+
 /** Ambil nilai pertama yang tidak kosong. */
 export function pertama<T>(...args: Array<T | undefined | null>): T {
   for (const a of args) {
