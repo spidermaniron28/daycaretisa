@@ -85,7 +85,7 @@ export default async function HalamanLogin({
 
           <div className="absolute bottom-5 left-0 right-0 px-6 text-center text-[11px] text-gray-300">
             © {new Date().getFullYear()} Sistem Informasi Daycare.
-            {/* Google mewajibkan homepage menautkan kekebijakan privasi yang sama
+            {/* Google mewajibkan homepage menautkan ke kebijakan privasi yang sama
                 dengan yang terdaftar di layar izin OAuth (Branding → App domain). */}
             <div className="mt-1 flex items-center justify-center gap-2">
               <a href="/privacy" className="underline underline-offset-2 hover:text-white">
