@@ -10,7 +10,9 @@ import { jwtVerify } from 'jose'
  * wajibRole() pada setiap route handler dan server component.
  * ------------------------------------------------------------------------- */
 
-const PUBLIK = ['/login', '/api/auth/login']
+// /privacy dan /terms harus tetap terbuka tanpa login: Google memakainya untuk
+// memeriksa Branding sebelum tombol "Publish app" bisa diklik (lihat DEPLOY.md §6).
+const PUBLIK = ['/login', '/api/auth/login', '/privacy', '/terms']
 
 const KETENTUAN_PER_PORTAL: Array<{ prefix: string; role: string }> = [
   { prefix: '/admin', role: 'admin' },

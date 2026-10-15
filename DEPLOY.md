@@ -187,6 +187,42 @@ setiap 7 hari — ini kebijakan Google, bukan bug aplikasi. Karena itu:
   mereka). Jalan keluar: buka tampilan lama OAuth consent screen, lengkapi
   halaman Branding, atau buat proyek Google Cloud baru.
 
+### 6.1. Jalur permanen: Publish app (sudah dipakai di Al-Haytham Library)
+
+Bukti lapangan: token E-Rapor yang dibuat 2026-10-07 mati tepat di hari ke-7,89
+dengan `invalid_grant`, dan upload foto langsung rusak karena fallback ke Service
+Account (403 *Service Accounts do not have storage quota*). Foto yang **sudah**
+terunggah tetap tampil — yang expire hanyalah refresh token untuk unggah baru.
+
+Prasyarat Branding (app External) yang berfungsi: **User support email**,
+**Developer contact information**, **Home page**, **Privacy policy URL**, dan
+**Terms of service URL**. Dua URL terakhir disediakan aplikasi sendiri:
+
+| Halaman | Path | Berkas |
+|---|---|---|
+| Kebijakan Privasi | `https://<domain>/privacy` | `src/app/privacy/page.tsx` |
+| Syarat & Ketentuan | `https://<domain>/terms` | `src/app/terms/page.tsx` |
+
+Keduanya didaftarkan di `PUBLIK` ([src/proxy.ts](src/proxy.ts)) supaya Google
+bisa membacanya tanpa cookie — kalau tidak, halaman malah dialihkan ke `/login`.
+
+Urutan langkah sekali jalan:
+
+1. Deploy dulu supaya kedua URL hidup di domain produksi.
+2. Google Cloud → **Branding** → isi App name, support email (dropdown akun
+   Google milik Anda), developer contact, Homepage, Privacy policy, Terms → **Save**.
+3. Google Cloud → **Audience** → **Publish app** → status berubah *In production*.
+4. **Hubungkan ulang Drive** — token yang lahir saat masih *Testing* tetap
+   berumur 7 hari; token baru harus diterbitkan **setelah** status In production.
+5. Panel Sistem & Akses → centang penanda "app sudah dipublikasikan"
+   (`drive_dipublikasikan` di sheet Pengaturan) supaya peringatan hilang.
+6. Verifikasi: `npm run typecheck && npm run lint && npm run build`, lalu buka
+   `/privacy` tanpa login (harus 200), dan **Uji Unggah Foto** di panel sistem.
+
+Catatan: tombol **Verify branding** bersifat opsional dan mensyaratkan verifikasi
+domain via Google Search Console — untuk domain `*.vercel.app` itu tidak bisa,
+dan tidak memengaruhi umur token. Cukup abaikan.
+
 ---
 
 ## 7. Pemeriksaan otomatis (CI)
