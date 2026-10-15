@@ -83,8 +83,19 @@ export default async function HalamanLogin({
             </div>
           )}
 
-          <div className="absolute bottom-5 text-[11px] text-gray-300">
+          <div className="absolute bottom-5 left-0 right-0 px-6 text-center text-[11px] text-gray-300">
             © {new Date().getFullYear()} Sistem Informasi Daycare.
+            {/* Google mewajibkan homepage menautkan kekebijakan privasi yang sama
+                dengan yang terdaftar di layar izin OAuth (Branding → App domain). */}
+            <div className="mt-1 flex items-center justify-center gap-2">
+              <a href="/privacy" className="underline underline-offset-2 hover:text-white">
+                Kebijakan Privasi
+              </a>
+              <span aria-hidden="true">·</span>
+              <a href="/terms" className="underline underline-offset-2 hover:text-white">
+                Syarat &amp; Ketentuan
+              </a>
+            </div>
           </div>
         </div>
 
