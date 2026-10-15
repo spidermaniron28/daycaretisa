@@ -48,7 +48,7 @@ export default async function HalamanLogin({
       <div className="relative z-10 w-full max-w-4xl bg-white shadow-2xl overflow-hidden rounded-2xl flex flex-col md:flex-row min-h-[520px]">
         {/* ----------------------------- KIRI ----------------------------- */}
         <div
-          className="w-full md:w-1/2 text-white flex flex-col items-center justify-center p-10 relative bg-biru-kolom"
+          className="w-full md:w-1/2 text-white flex flex-col items-center p-10 relative bg-biru-kolom"
           style={
             pengaturan.bg_kiri_url
               ? {
@@ -59,31 +59,37 @@ export default async function HalamanLogin({
               : undefined
           }
         >
-          <div className="mb-4 w-20 h-20 flex items-center justify-center">
-            <img
-              src={pengaturan.logo_url || '/logo.png'}
-              alt="Logo sekolah"
-              className="w-20 h-20 object-contain drop-shadow-md"
-            />
+          {/* Konten dipisah dari footer dan diberi flex-1 supaya footer yang
+              kini dua baris (copyright + tautan privasi) tidak menindih kotak
+              pengumuman di layar sempit — dulu footer dipasang absolute dan
+              tingginya melebihi ruang tersisa di panel. */}
+          <div className="w-full flex flex-1 flex-col items-center justify-center">
+            <div className="mb-4 w-20 h-20 flex items-center justify-center">
+              <img
+                src={pengaturan.logo_url || '/logo.png'}
+                alt="Logo sekolah"
+                className="w-20 h-20 object-contain drop-shadow-md"
+              />
+            </div>
+
+            <h2 className="text-[17px] font-semibold tracking-wider text-center mt-2 text-white">
+              {pengaturan.nama_sekolah || 'E-RAPOR DAYCARE'}
+            </h2>
+            <h1 className="text-[44px] font-bold text-kuning mt-0 mb-1 tracking-widest drop-shadow-sm">
+              E-RAPOR
+            </h1>
+            <p className="text-[13px] font-light mb-10 text-center text-gray-200">
+              Sistem Informasi Harian &amp; Perkembangan Anak
+            </p>
+
+            {pengaturan.teks_pengumuman && (
+              <div className="border border-white/20 bg-black/25 backdrop-blur-sm px-8 py-2.5 rounded-lg text-sm text-center font-medium shadow-inner">
+                {pengaturan.teks_pengumuman}
+              </div>
+            )}
           </div>
 
-          <h2 className="text-[17px] font-semibold tracking-wider text-center mt-2 text-white">
-            {pengaturan.nama_sekolah || 'E-RAPOR DAYCARE'}
-          </h2>
-          <h1 className="text-[44px] font-bold text-kuning mt-0 mb-1 tracking-widest drop-shadow-sm">
-            E-RAPOR
-          </h1>
-          <p className="text-[13px] font-light mb-10 text-center text-gray-200">
-            Sistem Informasi Harian &amp; Perkembangan Anak
-          </p>
-
-          {pengaturan.teks_pengumuman && (
-            <div className="border border-white/20 bg-black/25 backdrop-blur-sm px-8 py-2.5 rounded-lg text-sm text-center font-medium shadow-inner">
-              {pengaturan.teks_pengumuman}
-            </div>
-          )}
-
-          <div className="absolute bottom-5 left-0 right-0 px-6 text-center text-[11px] text-gray-300">
+          <div className="mt-8 text-center text-[11px] text-gray-300">
             © {new Date().getFullYear()} Sistem Informasi Daycare.
             {/* Google mewajibkan homepage menautkan ke kebijakan privasi yang sama
                 dengan yang terdaftar di layar izin OAuth (Branding → App domain). */}
